@@ -1,0 +1,63 @@
+import { Router } from "express";
+
+import auth from "../middleware/authMiddleware.js";
+import requireOwner from "../middleware/Authorization/requireOwner.js";
+import requireMember from "../middleware/Authorization/requireMember.js";
+
+import createRoomController from "../controllers/createRoomController.js";
+import deleteRoomController from "../controllers/deleteRoomController.js";
+import updateRoomDetailsController from "../controllers/updateRoomDetailsController.js";
+import getRoomDetailsController from "../controllers/getRoomDetailsController.js";
+
+import createRoomMemberController from "../controllers/createRoomMemberController.js";
+import getRoomMemberController from "../controllers/getRoomMemberController.js";
+import listingRoomUserController from "../controllers/listingRoomUserController.js";
+import removeRoomMemberController from "../controllers/removeRoomMemberController.js";
+import changeMemberRoleController from "../controllers/changeMemberRoleController.js";
+
+import leaveRoomController from "../controllers/leaveRoomController.js";
+
+const router = Router();
+
+/* ROOM ROUTES */
+
+// create room
+router.post("/", auth, createRoomController);
+
+// get room details
+router.get("/roomDetails/:roomId", auth, requireMember, getRoomDetailsController);
+
+// update room details
+router.put("/updateRoomDetails/:roomId", auth, requireMember,requireOwner, updateRoomDetailsController);
+
+// delete room
+router.delete("/deleteRoom/:roomId", auth, requireMember,requireOwner, deleteRoomController);
+
+
+/* ROOM MEMBER ROUTES */
+
+// add member
+router.post("/addMember/:roomId/members", auth, createRoomMemberController);
+
+// list all members in room
+router.get("/listMembers/:roomId/members", auth, requireMember, getRoomMemberController);
+
+//// get single member info
+//router.get("/memberInfo/:roomId/members/:memberId", auth, requireMember, getRoomMemberController);
+
+// remove member
+router.delete("/removeMember/:roomId/members/:memberId", auth,requireMember, requireOwner, removeRoomMemberController);
+
+// change member role
+router.put("/:roomId/members/:memberId/role", auth,requireMember, requireOwner, changeMemberRoleController);
+
+
+//list all rooms where a user is a member
+router.get("/listRooms",auth,listingRoomUserController);
+
+
+// leave room
+router.delete("/:roomId/leave", auth, requireMember, leaveRoomController);
+
+export default router;
+
