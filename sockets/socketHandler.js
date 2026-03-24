@@ -4,14 +4,15 @@ import generateCursorMoveEvents from './cursorMoveSocket.js';
 import fileSockets from './fileSockets.js';
 import chatSocket from './chatSockets.js';
 import socketAuth from '../source/middleware/socketAuth.js';
-import socketRoleCheck from '../source/middleware/socketRoleCheck.js';
+
 async function registerSocketHandlers(io){
-    
+       console.log("🔥 registerSocketHandlers CALLED");
     io.use(socketAuth);
-    io.use(socketRoleCheck)
+  
     const roomUsers = new Map();
     io.on("connection",(socket)=>{
          console.log("Connected:", socket.id);
+        socket.data.joinedRooms = new Set();
         registerRoomEvents(io,socket,roomUsers);
         registerCodeChangeEvents(socket,io,roomUsers);
         generateCursorMoveEvents(io,socket,roomUsers);

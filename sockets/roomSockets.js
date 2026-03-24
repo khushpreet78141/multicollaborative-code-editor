@@ -1,7 +1,18 @@
+import activeFiles from "../source/stores/activeFileStore.js";
+import RoomMember from "../source/models/roomMemberSchema.js";
 export default function registerRoomEvents(io,socket,roomUsers){
     //join room
-    socket.on("join-room",({roomId})=>{
+    socket.on("join-room",async({roomId,fileId})=>{
         if(!roomId) return;
+
+          const member = await RoomMember.findOne({
+        roomId,
+        memberId: socket.user.id
+    });
+
+    if (!member) return;
+socket.data.roles = socket.data.roles || {};
+    socket.data.roles[roomId] = member.role;
         //join socket.io room
         socket.join(roomId);
 
@@ -9,18 +20,21 @@ export default function registerRoomEvents(io,socket,roomUsers){
         if(!roomUsers.has(roomId)){
             roomUsers.set(roomId,{
                 users:[],
-                code:"",
+                
                 cursors: new Map(),
                 saveTimer:null,
             });
         }
+        
+      
 
        const room = roomUsers.get(roomId);
 
         //prevent duplicate joins
         const alreadyExists = room.users.find(
-            user=> user.socketId === socket.id
+            user=> user.userId === socket.user.id
         )
+
         if(!alreadyExists){
             room.users.push({
                 socketId:socket.id,
@@ -29,9 +43,17 @@ export default function registerRoomEvents(io,socket,roomUsers){
                 activeFileId:null
             })
         }
-        socket.emit("code-update", {
-    code: room.code
-});
+     
+        socket.data.joinedRooms.add(roomId);
+
+//    socket.emit("code-update", {
+//    code: room.code
+//});
+
+        socket.emit("file-init",{
+            fileId,
+            code:activeFiles.get(fileId)?.content || ""
+        })
         //send updated users list to everyone in room
 
         io.to(roomId).emit("room-users",room.users);
@@ -48,13 +70,17 @@ export default function registerRoomEvents(io,socket,roomUsers){
     //Disconnect
 
     socket.on("disconnect",()=>{
-        for(const [roomId,room] of roomUsers.entries()){
-            const originalLength = room.users?.length;
+        for(const roomId of socket.data.joinedRooms || []){
+
+            const room = roomUsers.get(roomId)
+            if(!room) continue;
+
+   
             room.users = room.users.filter(
                 user=>user.socketId !== socket.id
             )
              
-        if(room.users.length !== originalLength){
+    
             //notify others in room
             socket.to(roomId).emit("user-left",{
                 socketId:socket.id,
@@ -62,10 +88,11 @@ export default function registerRoomEvents(io,socket,roomUsers){
             }) 
             //update room users list
             io.to(roomId).emit("room-users",room.users)
-        }
-        //cleanup : remove empty room
+            //cleanup : remove empty room
         if(room.users.length===0){
             roomUsers.delete(roomId);
-        } }
+        } 
+        }
+        
     })
 }
