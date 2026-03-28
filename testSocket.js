@@ -17,6 +17,11 @@ socket.on("connect", () => {
 
   // 🔥 test event
   socket.emit("pingTest");
+  socket.emit("code-change", {
+  roomId: "room1",
+  fileId: "file1",
+  code: "hello"
+});
 });
 
 socket.on("pongTest", (msg) => {
@@ -26,6 +31,7 @@ socket.on("pongTest", (msg) => {
 socket.on("connect_error", (err) => {
   console.log("❌ Error:", err.message);
 });
+
 
 
 

@@ -2,7 +2,7 @@ import activeFiles from "../source/stores/activeFileStore.js";
 import FileContent from "../source/models/fileContentSchema.js";
 import File from "../source/models/fileSchema.js";
 
-export default function fileSockets(io, socket) {
+export default function fileSockets({io, socket}) {
   socket.on("get-files", async ({ roomId }) => {
 
     if (!roomId) return;

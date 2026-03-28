@@ -17,47 +17,49 @@ import changeMemberRoleController from "../controllers/changeMemberRoleControlle
 
 import leaveRoomController from "../controllers/leaveRoomController.js";
 
+import asyncHandler from "../utils/asyncHandler.js";
+
 const router = Router();
 
 /* ROOM ROUTES */
 
 // create room
-router.post("/", auth, createRoomController);
+router.post("/", auth, asyncHandler(createRoomController));
 
 // get room details
-router.get("/roomDetails/:roomId", auth, requireMember, getRoomDetailsController);
+router.get("/roomDetails/:roomId", auth, requireMember, asyncHandler(getRoomDetailsController));
 
 // update room details
-router.put("/updateRoomDetails/:roomId", auth, requireMember,requireOwner, updateRoomDetailsController);
+router.put("/updateRoomDetails/:roomId", auth, requireMember,requireOwner, asyncHandler(updateRoomDetailsController));
 
 // delete room
-router.delete("/deleteRoom/:roomId", auth, requireMember,requireOwner, deleteRoomController);
+router.delete("/deleteRoom/:roomId", auth, requireMember,requireOwner, asyncHandler(deleteRoomController));
 
 
 /* ROOM MEMBER ROUTES */
 
 // add member
-router.post("/addMember/:roomId/members", auth, createRoomMemberController);
+router.post("/addMember/:roomId/members", auth, asyncHandler(createRoomMemberController));
 
 // list all members in room
-router.get("/listMembers/:roomId/members", auth, requireMember, getRoomMemberController);
+router.get("/listMembers/:roomId/members", auth, requireMember, asyncHandler(getRoomMemberController));
 
 //// get single member info
 //router.get("/memberInfo/:roomId/members/:memberId", auth, requireMember, getRoomMemberController);
 
 // remove member
-router.delete("/removeMember/:roomId/members/:memberId", auth,requireMember, requireOwner, removeRoomMemberController);
+router.delete("/removeMember/:roomId/members/:memberId", auth,requireMember, requireOwner, asyncHandler(removeRoomMemberController));
 
 // change member role
-router.put("/:roomId/members/:memberId/role", auth,requireMember, requireOwner, changeMemberRoleController);
+router.put("/:roomId/members/:memberId/role", auth,requireMember, requireOwner, asyncHandler(changeMemberRoleController));
 
 
 //list all rooms where a user is a member
-router.get("/listRooms",auth,listingRoomUserController);
+router.get("/listRooms",auth,asyncHandler(listingRoomUserController));
 
 
 // leave room
-router.delete("/:roomId/leave", auth, requireMember, leaveRoomController);
+router.delete("/:roomId/leave", auth, requireMember, asyncHandler(leaveRoomController));
 
 export default router;
 

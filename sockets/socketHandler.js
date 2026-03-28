@@ -6,19 +6,24 @@ import chatSocket from './chatSockets.js';
 import socketAuth from '../source/middleware/socketAuth.js';
 
 async function registerSocketHandlers(io){
-       console.log("🔥 registerSocketHandlers CALLED");
+    
     io.use(socketAuth);
   
     const roomUsers = new Map();
     io.on("connection",(socket)=>{
-         console.log("Connected:", socket.id);
+        // console.log("Connected:", socket.id);
         socket.data.joinedRooms = new Set();
         registerRoomEvents(io,socket,roomUsers);
-        registerCodeChangeEvents(socket,io,roomUsers);
-        generateCursorMoveEvents(io,socket,roomUsers);
-        fileSockets(io,socket);
-        chatSocket(socket);
-        console.log("Authenticated user connected ",socket.user);
+        registerCodeChangeEvents({socket,io,roomUsers});
+        generateCursorMoveEvents({io,socket,roomUsers});
+        fileSockets({io,socket});
+        chatSocket({socket});
+          // 🔥 GLOBAL EVENT LOGGER
+  socket.onAny((event, ...args) => {
+    console.log(`📡 Event received: ${event}`, args);
+  });
+        //console.log("Authenticated user connected ",socket.user);
+       
         socket.on("disconnect",()=>{
             console.log("User disconnected:",socket.user?.id);
         });

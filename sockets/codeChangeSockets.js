@@ -2,7 +2,7 @@ import RoomMember from "../source/models/roomMemberSchema.js";
 import activeFiles from "../source/stores/activeFileStore.js";
 import scheduleSave from "../source/utils/debouncedSave.js";
 export default function registerCodeChangeEvents({socket,io,roomUsers}){
-    socket.on("code-change",async({roomId,fileId,code})=>{
+    socket.on("code-change",({roomId,fileId,code})=>{
         if(!roomId || !fileId || typeof code !== 'string') return;
 
         if(!activeFiles.has(fileId)) return;

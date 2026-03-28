@@ -9,6 +9,7 @@ export default function registerRoomEvents(io,socket,roomUsers){
         roomId,
         memberId: socket.user.id
     });
+     console.log(`User joined room: ${roomId}`);
 
     if (!member) return;
 socket.data.roles = socket.data.roles || {};
