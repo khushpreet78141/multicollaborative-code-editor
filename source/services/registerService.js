@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt'
 import User from '../models/userSchema.js';
 import AppError from '../utils/AppError.js';
-import jwt from 'jsonwebtoken'
+
+
 export default async function registerService(username,email,password){
     const hashedPass = await bcrypt.hash(password,10);
     const user = await User.findOne({email});

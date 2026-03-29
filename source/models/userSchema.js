@@ -20,6 +20,7 @@ const userSchema = new Schema({
         trim:true
 
     }
+    
 },{timestamps:true});
 
 const userModel = mongoose.model("User",userSchema);

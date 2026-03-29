@@ -9,14 +9,14 @@ import authRoutes from '../routes/authRoutes.js';
 const app = express();
 
 app.use(cors({
-    origin:"*",
-    credentials:true
+    origin: "*",
+    credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/room",roomRoutes);
-app.use("/file",fileRoutes);
-app.use("/auth",authRoutes);
+app.use("/api/room", roomRoutes);
+app.use("/api/file", fileRoutes);
+app.use("/api/auth", authRoutes);
 export default app;
