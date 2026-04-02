@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+
+.bg{
+  background-color: #0D1117;
+}
+
+.border{
+  border-color: #30363D;
+}
+
+.primaryText{
+  color:#C9D1D9
+}
+
+.secondryText{
+  color: #8B949E;
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+/* Main toast */
+.custom-toast {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  color: #e2e8f0;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  padding: 12px;
+}
+
+/* Text */
+.custom-toast-body {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Success */
+.Toastify__toast--success {
+  border-left: 4px solid #22c55e;
+}
+
+/* Error */
+.Toastify__toast--error {
+  border-left: 4px solid #ef4444;
+}
+
+/* Info */
+.Toastify__toast--info {
+  border-left: 4px solid #3b82f6;
+}
+
+/* Progress */
+.Toastify__progress-bar {
+  background: linear-gradient(to right, #6366f1, #8b5cf6);
+}
