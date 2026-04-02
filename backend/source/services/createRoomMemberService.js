@@ -2,7 +2,8 @@ import Room from "../models/roomSchema.js";
 import RoomMember from "../models/roomMemberSchema.js";
 import AppError from '../utils/AppError.js'
 
-async function createRoomMemberService(inviteCode,userId){       
+async function createRoomMemberService(inviteCode,inviteLink,userId){  
+             
         const findRoom = await Room.findOne({inviteCode})
         if(!findRoom){
 
@@ -13,7 +14,7 @@ async function createRoomMemberService(inviteCode,userId){
             roomId:findRoom._id,
             memberId:userId,
         })
-         return member   
+        return member   
         }catch(error){
             if(error.code===11000){
                 throw new AppError("Already a member",409)

@@ -25,7 +25,7 @@ const CreateRoom = () => {
       setInviteCode(res.data.inviteCode);
     }
   };
-  const inviteLink =  `${window.location.origin}/join/${roomId}`;
+  const inviteLink =  `${window.location.origin}/addMember/${inviteCode}`;
   
   const copy = (text, type) => {
     navigator.clipboard.writeText(text);
@@ -110,7 +110,7 @@ const CreateRoom = () => {
             {step === 2 && visibility === "public" && (
   <>
     <h2 className="text-xl font-semibold mb-2">
-      Room Ready 🚀
+      Room Ready 
     </h2>
 
     <p className="text-gray-400 text-sm mb-6">

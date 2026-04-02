@@ -39,7 +39,7 @@ router.delete("/deleteRoom/:roomId", auth, requireMember,requireOwner, asyncHand
 /* ROOM MEMBER ROUTES */
 
 // add member
-router.post("/addMember/:roomId/members", auth, asyncHandler(createRoomMemberController));
+router.post("/addMember", auth, asyncHandler(createRoomMemberController));
 
 // list all members in room
 router.get("/listMembers/:roomId/members", auth, requireMember, asyncHandler(getRoomMemberController));
