@@ -16,7 +16,7 @@ import removeRoomMemberController from "../controllers/removeRoomMemberControlle
 import changeMemberRoleController from "../controllers/changeMemberRoleController.js";
 
 import leaveRoomController from "../controllers/leaveRoomController.js";
-
+import publicRoomController from "../controllers/publicRoomController.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const router = Router();
@@ -60,6 +60,9 @@ router.get("/listRooms",auth,asyncHandler(listingRoomUserController));
 
 // leave room
 router.delete("/:roomId/leave", auth, requireMember, asyncHandler(leaveRoomController));
+
+//public room
+router.get("/publicRoom",auth,asyncHandler(publicRoomController));
 
 export default router;
 
