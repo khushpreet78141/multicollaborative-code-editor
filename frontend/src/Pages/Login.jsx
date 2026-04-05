@@ -28,7 +28,7 @@ const Login = () => {
       password: data.password
     });
 
-
+    localStorage.setItem("token",res.data.token)
     console.log(res);
     setTimeout(() => {
       navigate('/dasboard')

@@ -7,6 +7,6 @@ async function listingRoomUserController(req,res){
         success:true,
         rooms
     })
-}
+};
 
 export default listingRoomUserController;

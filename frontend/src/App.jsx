@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import JoinRoom from './components/JoinRoom';
 import Dashboard from './Pages/Dashboard';
 import CreateRoom from './components/CreateRoom';
+import RoomInterface from './Pages/RoomInterface';
 
 function App() {
   
@@ -28,7 +29,8 @@ function App() {
      <Route path='/register' element={<Register/>}/>
      <Route path='/createRoom' element={<CreateRoom/>}/>
      <Route path='/joinRoom' element={<JoinRoom/>}/>
-     <Route path='/dasboard' element={<Dashboard/>}/>     
+     <Route path='/dasboard' element={<Dashboard/>}/>   
+     <Route path='/room/:roomId'  element={<RoomInterface/>}/>
 </Routes>
     </BrowserRouter>
      

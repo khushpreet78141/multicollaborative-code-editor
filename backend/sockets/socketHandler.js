@@ -8,10 +8,15 @@ import socketAuth from '../source/middleware/socketAuth.js';
 async function registerSocketHandlers(io){
     
     io.use(socketAuth);
+
+//io.use((socket, next) => {
+//  console.log("Auth bypass");
+//  next();
+//});
   
     const roomUsers = new Map();
     io.on("connection",(socket)=>{
-        // console.log("Connected:", socket.id);
+         console.log("Connected:", socket.id);
         socket.data.joinedRooms = new Set();
         registerRoomEvents(io,socket,roomUsers);
         registerCodeChangeEvents({socket,io,roomUsers});
