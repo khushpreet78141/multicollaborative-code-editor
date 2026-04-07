@@ -8,6 +8,7 @@ export default function registerCodeChangeEvents({socket,io,roomUsers}){
         if(!activeFiles.has(fileId)) return;
          // Ensure socket actually belongs to file room
         if (!socket.rooms.has(roomId)) return;
+       
 
         const role = socket.data.roles?.[roomId]
         if (role !== "owner" && role !== "editor") return;

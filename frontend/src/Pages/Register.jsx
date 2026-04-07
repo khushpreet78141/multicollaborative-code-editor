@@ -31,6 +31,7 @@ const Register = () => {
     if(res.data.success){
         showSuccess("Registered successfully !");
     }
+    localStorage.setItem("token",res.data.token)
     console.log(res)
     setTimeout(() => {
         navigate("/dasboard")

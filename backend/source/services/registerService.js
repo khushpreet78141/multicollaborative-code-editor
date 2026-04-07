@@ -21,6 +21,7 @@ export default async function registerService(username,email,password){
             process.env.JWT_SECRET_KEY,
             {expiresIn: '1d'}
         );
+        
 
         return token
 }

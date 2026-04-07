@@ -12,12 +12,10 @@ const auth = (req,res,next)=>{
      
     const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY); 
     req.user = {userId : decoded.userId};
-    next();
+    next(); 
   
     }catch(err){
-
-        console.error(err);
-        
+        console.error(err);        
         return res.status(401).json({
             success:false,
             message:"authorization failed!"
