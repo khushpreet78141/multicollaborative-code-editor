@@ -12,7 +12,7 @@ import JoinRoom from './components/JoinRoom';
 import Dashboard from './Pages/Dashboard';
 import CreateRoom from './components/CreateRoom';
 import RoomInterface from './Pages/RoomInterface';
-import { RoomProvider } from './context/RoomContext';
+import RoomProvider from './context/RoomContext';
 
 function App() {
   
@@ -33,10 +33,8 @@ function App() {
      <Route path='/dasboard' element={<Dashboard/>}/> 
       
      <Route path='/room/:roomId'  element={ <RoomProvider><RoomInterface/></RoomProvider>}/> 
-    
 </Routes>
     </BrowserRouter>
-     
     </>
   )
 }

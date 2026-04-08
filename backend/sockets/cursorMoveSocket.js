@@ -30,8 +30,5 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
         userName:socket.user?.name
     }) 
     }) ;
-
-
-
     
 }

@@ -1,4 +1,3 @@
-// RoomContext.js
 import { createContext, useContext, useState } from "react";
 import socket from "../utils/socket";
 import { useParams } from "react-router-dom";
@@ -6,7 +5,8 @@ import { showInfo } from "../utils/Toast";
 import { useEffect } from "react";
 const RoomContext = createContext();
 
-export const RoomProvider = ({ children }) => {
+
+const RoomProvider = ({ children }) => {
   const {roomId} = useParams()
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
@@ -15,7 +15,6 @@ export const RoomProvider = ({ children }) => {
   const [code, setCode] = useState("");
 
 //useffect for connection
-
 useEffect(() => {
   socket.connect();
 
@@ -87,7 +86,6 @@ useEffect(() => {
 
 }, []);
 
-
   return (
     <RoomContext.Provider
       value={{
@@ -107,7 +105,7 @@ useEffect(() => {
     </RoomContext.Provider>
   );
 };
-
+export default RoomProvider;
 // custom hook
 
 export const useRoom = () => {
