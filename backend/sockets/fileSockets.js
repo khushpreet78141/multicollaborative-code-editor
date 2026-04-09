@@ -15,12 +15,12 @@ export default function fileSockets({io, socket}) {
   });
 
 
-   socket.on("open-file", async ({roomId, fileId }) => {
+  socket.on("open-file", async ({roomId, fileId }) => {
       if (!roomId || !fileId) return;
 
     if (!socket.rooms.has(roomId)) return;
   
-       // fetch or load content
+    // fetch or load content
     if(!activeFiles.has(fileId)){
         const fileDoc = await FileContent.findOne({fileId});
         const content = fileDoc ? fileDoc.content :""
@@ -29,9 +29,7 @@ export default function fileSockets({io, socket}) {
             content,
             lastEditedBy:null,
             changed:false
-
-        })
-        
+        })    
     }
 
     //send current content
@@ -51,7 +49,6 @@ socket.on("save-file",async({roomId,fileId})=>{
 
     await FileContent.updateOne(
         {fileId},
-
         {content:fileState.content,
         lastEditedBy:fileState.lastEditedBy},
         {upsert:true}
