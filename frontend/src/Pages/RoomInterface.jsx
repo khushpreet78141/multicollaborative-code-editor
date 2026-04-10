@@ -33,11 +33,8 @@ const RoomInterface = () => {
   <div className="flex-1">
     ...
   </div>
-
 </div>
-  
-    </>
-    
+    </>    
   );
 };
 

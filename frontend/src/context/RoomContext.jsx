@@ -3,6 +3,8 @@ import socket from "../utils/socket";
 import { useParams } from "react-router-dom";
 import { showInfo } from "../utils/Toast";
 import { useEffect } from "react";
+import useFileSocket from '../hooks/useFileSocket.js'
+import useRoomSocket from '../hooks/useRoomSocket.js'
 const RoomContext = createContext();
 
 
