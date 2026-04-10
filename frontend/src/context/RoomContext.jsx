@@ -15,6 +15,7 @@ const RoomProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [code, setCode] = useState("");
   const [activeFileId, setActiveFileId] = useState(null);
+  const [fileContent, setFileContent] = useState("")
 
 //attaching socket logic 
   useFileSocket({
