@@ -17,7 +17,7 @@ export default function registerRoomEvents(io,socket,roomUsers){
     socket.data.roles[roomId] = member.role;
     //join socket.io room
     socket.join(roomId);
-
+    
         //Initialize room if not exists
         if(!roomUsers.has(roomId)){
             roomUsers.set(roomId,{

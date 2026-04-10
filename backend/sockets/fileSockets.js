@@ -9,8 +9,21 @@ export default function fileSockets({io, socket}) {
     // security check: ensure user is in room
     if (!socket.rooms.has(roomId)) return;
 
-    const files = await File.find({ roomId });
+   let files = await File.find({ roomId });
+    //initializing default file 
 
+      
+      if(files.length === 0){
+        const defaultFile = await File.create({
+            fileName:"main.js",
+            roomId,
+            parent:null,
+            type:"file"
+        })
+        files = [defaultFile];
+        io.to(roomId).emit("file-created",defaultFile)
+
+      }
     socket.emit("files-list", files);
   });
 
@@ -32,10 +45,11 @@ export default function fileSockets({io, socket}) {
         })    
     }
 
+
     //send current content
     const fileState = activeFiles.get(fileId)
-      // send content back to client
-      socket.emit("load-file",{fileId,content:fileState.content});
+    // send content back to client
+    socket.emit("load-file",{fileId,content:fileState.content});
    });
 
 
@@ -58,20 +72,24 @@ socket.on("save-file",async({roomId,fileId})=>{
 
 
   // CREATE FILE
-  socket.on("create-file", async ({ roomId, name }) => {
+  socket.on("create-file", async ({ roomId, name ,parent,type}) => {
 
     if (!roomId || !name) return;
     if (!socket.rooms.has(roomId)) return;
 
     const file = await File.create({
       roomId,
-      name
+      fileName:name,
+      parent:parent||null,
+      type:type||"file"
     });
-
-    await FileContent.create({
+    if(type !== "folder"){
+      await FileContent.create({
       fileId: file._id,
       content: ""
     });
+    }
+    
 
     io.to(roomId).emit("file-created", file);
   });
@@ -104,13 +122,19 @@ socket.on("save-file",async({roomId,fileId})=>{
     if (!roomId || !fileId) return;
     if (!socket.rooms.has(roomId)) return;
 
+    async function deleteRecursive(fileId) {
+      const children = await File.find({parent:fileId})
+      for(const child of children){
+        await deleteRecursive(child._id)
+      }
     await File.deleteOne({ _id: fileId });
-
     await FileContent.deleteOne({ fileId });
-
-    // remove from memory cache
+    //remove from memory cache
     activeFiles.delete(fileId);
-
+      
+    }
+    await deleteRecursive(fileId);
+    
     io.to(roomId).emit("file-deleted", { fileId });
   });
 

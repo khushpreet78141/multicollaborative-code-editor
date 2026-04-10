@@ -10,9 +10,22 @@ const RoomProvider = ({ children }) => {
   const {roomId} = useParams()
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
-  const [activeFile, setActiveFile] = useState(null);
   const [messages, setMessages] = useState([]);
   const [code, setCode] = useState("");
+  const [activeFileId, setActiveFileId] = useState(null);
+
+//attaching socket logic 
+  useFileSocket({
+    roomId,
+    setFiles,
+    setActiveFileId,
+    setFileContent
+  });
+
+  useRoomSocket({
+    roomId,
+    setMembers
+  });
 
 //useffect for connection
 useEffect(() => {
@@ -21,7 +34,7 @@ useEffect(() => {
   const handleConnect = () => {
     socket.emit("join-room", {
       roomId,
-      fileId: activeFile,
+      fileId: activeFileId,
     });
   };
 
@@ -36,46 +49,20 @@ useEffect(() => {
 
 //handling activefiles changes
 useEffect(() => {
-  if (!roomId || !activeFile) return;
+  if (!roomId || !activeFileId) return;
 
   socket.emit("join-room", {
     roomId,
-    fileId: activeFile,
+    fileId: activeFileId,
   });
-}, [activeFile]);
-
-
-
-//useEffect for listeners
-useEffect(() => {
-  const handleUserJoined = (data)=>{
-    showInfo(`${data.username} has joined the room .`);
-  }
-  const handleUserLeft = (data)=>{
-    showInfo(`${data.username} has left the room .`)
-  }
-
-  const handleRoomUsers = (data) =>{
-    setMembers(data)
-  }
-
-  socket.on("user-joined",handleUserJoined);
-  socket.on("user-left",handleUserLeft);
-  socket.on("room-users",handleRoomUsers);
-
-  return () => {
-    socket.off("user-joined", handleUserJoined);
-    socket.off("user-left", handleUserLeft);
-    socket.off("room-users", handleRoomUsers);
-  }
-}, [])
+}, [activeFileId]);
 
 
 //file initializing
 useEffect(() => {
 
   const handleFileInit = ({ fileId, code }) => {
-    setActiveFile(fileId);
+    setActiveFileId(fileId);
     setCode(code);
   };
 
@@ -94,8 +81,8 @@ useEffect(() => {
         setMembers,
         files,
         setFiles,
-        activeFile,
-        setActiveFile,
+        activeFileId,
+        setActiveFileId,
         messages,
         setMessages,
         code,
@@ -115,6 +102,7 @@ export const useRoom = () => {
     throw new Error("useRoom must be used within a RoomProvider");
   }
   return context;
+
 };
 
 
