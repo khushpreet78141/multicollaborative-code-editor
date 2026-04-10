@@ -13,28 +13,37 @@ import ResizeHandle from '.././utils/ResizeHandle';
 const RoomInterface = () => {
   const { roomId } = useParams();
   const [sidebarWidth, setSidebarWidth] = useState(280);
-  
+  const [chatWidth, setChatWidth] = useState(280);
+
   return (
     <>
- <div className="h-screen flex bg-[#020617] overflow-hidden">
+      <div className="h-screen flex bg-[#020617] overflow-hidden">
 
-  {/* Sidebar */}
-  <div
-    style={{ width: sidebarWidth }}
-    className="h-full border-r border-white/10"
-  >
-    <LiveMemberDetails />
-  </div>
+        {/* Sidebar */}
+        <div
+          style={{ width: sidebarWidth }}
+          className="h-full border-r border-white/10"
+        >
+          <LiveMemberDetails />
+        </div>
 
-  {/* Resize Handle */}
-  <ResizeHandle setSidebarWidth={setSidebarWidth} />
+        {/* Resize Handle */}
+        <ResizeHandle setSidebarWidth={setSidebarWidth} />
 
-  {/* Main */}
-  <div className="flex-1">
-    ...
-  </div>
-</div>
-    </>    
+        {/* Main */}
+        <div className="flex-1">
+          ...
+        </div>
+
+        <div
+          style={{ width: chatWidth }}
+          className="h-full border-r border-white/10"
+        >
+          <LiveChat />
+        </div>
+
+      </div>
+    </>
   );
 };
 
