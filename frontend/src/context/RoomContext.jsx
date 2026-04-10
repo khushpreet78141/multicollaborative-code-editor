@@ -9,7 +9,7 @@ const RoomContext = createContext();
 
 
 const RoomProvider = ({ children }) => {
-  const {roomId} = useParams()
+  const { roomId } = useParams()
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -17,7 +17,7 @@ const RoomProvider = ({ children }) => {
   const [activeFileId, setActiveFileId] = useState(null);
   const [fileContent, setFileContent] = useState("")
 
-//attaching socket logic 
+  //attaching socket logic 
   useFileSocket({
     roomId,
     setFiles,
@@ -30,53 +30,66 @@ const RoomProvider = ({ children }) => {
     setMembers
   });
 
-//useffect for connection
-useEffect(() => {
-  socket.connect();
+  //useffect for connection
+  useEffect(() => {
+    socket.connect();
 
-  const handleConnect = () => {
+    const handleConnect = () => {
+      socket.emit("join-room", {
+        roomId,
+        fileId: activeFileId,
+      });
+    };
+
+    socket.on("connect", handleConnect);
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.disconnect();
+    };
+  }, [roomId]);
+
+
+  //handling activefiles changes
+  useEffect(() => {
+    if (!roomId || !activeFileId) return;
+
     socket.emit("join-room", {
       roomId,
       fileId: activeFileId,
     });
-  };
-
-  socket.on("connect", handleConnect);
-
-  return () => {
-    socket.off("connect", handleConnect);
-    socket.disconnect();
-  };
-}, [roomId]);
+  }, [activeFileId]);
 
 
-//handling activefiles changes
-useEffect(() => {
-  if (!roomId || !activeFileId) return;
+  //file initializing
+  useEffect(() => {
 
-  socket.emit("join-room", {
-    roomId,
-    fileId: activeFileId,
-  });
-}, [activeFileId]);
+    const handleFileInit = ({ fileId, code }) => {
+      setActiveFileId(fileId);
+      setCode(code);
+    };
+    const handleMessage = (message) => {
+      messages.map((msg, index) => {
+        if (msg._id === message._id) {
+          return;
+        }
 
+      })
+      setMessages((prev) => [...prev, message]);
+    }
+    socket.on("file-init", handleFileInit);
+    socket.on("receive-message", handleMessage);
+    return () => {
+      socket.off("file-init", handleFileInit);
+    };
 
-//file initializing
-useEffect(() => {
-
-  const handleFileInit = ({ fileId, code }) => {
-    setActiveFileId(fileId);
-    setCode(code);
-  };
-
-  socket.on("file-init", handleFileInit);
-
-  return () => {
-    socket.off("file-init", handleFileInit);
-  };
-
-}, []);
-
+  }, []);
+  const sendMessage = (msg) => {
+    socket.emit("send-message", {
+      roomId,
+      msg
+    })
+  }
   return (
     <RoomContext.Provider
       value={{
@@ -88,6 +101,7 @@ useEffect(() => {
         setActiveFileId,
         messages,
         setMessages,
+        sendMessage,
         code,
         setCode,
       }}
