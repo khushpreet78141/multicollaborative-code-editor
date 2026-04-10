@@ -22,7 +22,7 @@ async function registerSocketHandlers(io){
         registerCodeChangeEvents({socket,io,roomUsers});
         generateCursorMoveEvents({io,socket,roomUsers});
         fileSockets({io,socket});
-        chatSocket({socket});
+        chatSocket({io,socket});
           // 🔥 GLOBAL EVENT LOGGER
   socket.onAny((event, ...args) => {
     console.log(`📡 Event received: ${event}`, args);

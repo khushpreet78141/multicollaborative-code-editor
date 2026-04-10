@@ -16,6 +16,7 @@ const RoomProvider = ({ children }) => {
   const [code, setCode] = useState("");
   const [activeFileId, setActiveFileId] = useState(null);
   const [fileContent, setFileContent] = useState("")
+  const [othersMessage, setothersMessage] = useState([])
 
   //attaching socket logic 
   useFileSocket({
@@ -39,15 +40,18 @@ const RoomProvider = ({ children }) => {
         roomId,
         fileId: activeFileId,
       });
+       socket.emit("get-messages",{
+      roomId
+    })
     };
-
+   
     socket.on("connect", handleConnect);
-
+    
     return () => {
       socket.off("connect", handleConnect);
       socket.disconnect();
     };
-  }, [roomId]);
+  }, [roomId,activeFileId]);
 
 
   //handling activefiles changes
@@ -75,21 +79,36 @@ const RoomProvider = ({ children }) => {
         }
 
       })
+     console.log(message)
       setMessages((prev) => [...prev, message]);
+    }
+
+    const handleGetMessage = (messages)=>{
+      console.log("all messages",messages);
+      //setothersMessage(messages)
+      setMessages(messages)
+
     }
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
+    socket.on("receive-all-messages", handleGetMessage);
+
     return () => {
       socket.off("file-init", handleFileInit);
+      socket.off("receive-message", handleMessage);
+      socket.off("receive-all-messages", handleGetMessage);
+      
     };
 
   }, []);
+
   const sendMessage = (msg) => {
     socket.emit("send-message", {
       roomId,
       msg
     })
   }
+
   return (
     <RoomContext.Provider
       value={{
@@ -104,6 +123,8 @@ const RoomProvider = ({ children }) => {
         sendMessage,
         code,
         setCode,
+        setothersMessage,
+        othersMessage
       }}
     >
       {children}
