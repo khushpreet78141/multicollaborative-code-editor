@@ -4,11 +4,10 @@ import { SendHorizonal, User2 } from "lucide-react";
 import { useState } from "react";
 
 const LiveChat = () => {
-  const { messages, sendMessage,setothersMessage,othersMessage } = useRoom();
+  const { messages, sendMessage, setothersMessage, othersMessage } = useRoom();
   const [message, setMessage] = useState([]);
 
-  console.log("the other messages ",othersMessage);
-  
+
   return (
     <div className="relative bg-[#0f172a] border border-white/10 w-full h-[600px] min-h-0 flex flex-col p-4 rounded-2xl shadow-lg">
 
@@ -34,7 +33,7 @@ const LiveChat = () => {
         })}
       </div>
 
-    
+
       {/* Members List */}
       <div className="flex flex-col gap-3">
 

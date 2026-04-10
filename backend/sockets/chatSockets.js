@@ -1,6 +1,6 @@
 import Chat from "../source/models/chatSchema.js"
 
-export default function chatSocket({ io,socket }) {
+export default function chatSocket({ io, socket }) {
 
     socket.on("send-message", async ({ roomId, msg }) => {
         const text = msg;
@@ -14,12 +14,22 @@ export default function chatSocket({ io,socket }) {
         })
 
         const newMsg = await Chat.findById(message._id)
-                            .populate("senderId","username")
+            .populate("senderId", "username")
 
-       console.log(newMsg);
+
 
         //send to everyone
-        io.to(roomId).emit("receive-message",newMsg);
+        io.to(roomId).emit("receive-message", newMsg);
+    })
+
+    socket.on("cursor_move", ({ roomId, position }) => {
+        // if (!roomId || !position || !userId) return;
+        // if (!socket.rooms.has(roomId)) return;
+        io.to(roomId).emit("cursor_move", {
+            roomId,
+            position,
+            userId: socket.user.id
+        })
     })
 
     socket.on("get-messages", async ({ roomId }) => {
@@ -27,9 +37,9 @@ export default function chatSocket({ io,socket }) {
         if (!socket.rooms.has(roomId)) return;
         const messages = await Chat.find({ roomId }).sort({ createdAt: 1 }).limit(50)
             .populate("senderId", "username");
-        console.log("all messages",messages)
+
         socket.emit("receive-all-messages", messages.reverse());
     });
-        
+
 }
 

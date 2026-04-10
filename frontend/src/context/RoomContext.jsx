@@ -17,7 +17,20 @@ const RoomProvider = ({ children }) => {
   const [activeFileId, setActiveFileId] = useState(null);
   const [fileContent, setFileContent] = useState("")
   const [othersMessage, setothersMessage] = useState([])
+  const [cursors, setCursors] = useState([])
+  const [currentUserId, setCurrentUserId] = useState(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.userId);
+      } catch (e) {
+        console.error("Failed to decode token", e);
+      }
+    }
+  }, []);
   //attaching socket logic 
   useFileSocket({
     roomId,
@@ -28,9 +41,16 @@ const RoomProvider = ({ children }) => {
 
   useRoomSocket({
     roomId,
-    setMembers
+    setMembers,
+    setCursors
   });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
+  useEffect(() => {
+    const handleMouseMove = (e) => setPosition({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
   //useffect for connection
   useEffect(() => {
     socket.connect();
@@ -40,18 +60,18 @@ const RoomProvider = ({ children }) => {
         roomId,
         fileId: activeFileId,
       });
-       socket.emit("get-messages",{
-      roomId
-    })
+      socket.emit("get-messages", {
+        roomId
+      })
     };
-   
+
     socket.on("connect", handleConnect);
-    
+
     return () => {
       socket.off("connect", handleConnect);
       socket.disconnect();
     };
-  }, [roomId,activeFileId]);
+  }, [roomId, activeFileId]);
 
 
   //handling activefiles changes
@@ -79,28 +99,49 @@ const RoomProvider = ({ children }) => {
         }
 
       })
-     console.log(message)
+      console.log(message)
       setMessages((prev) => [...prev, message]);
     }
 
-    const handleGetMessage = (messages)=>{
-      console.log("all messages",messages);
+    const handleGetMessage = (messages) => {
+      console.log("all messages", messages);
       //setothersMessage(messages)
       setMessages(messages)
 
     }
+    const handleCursorMove = ({ roomId, position, userId }) => {
+      setCursors((prev) =>
+        prev.map((cursor) =>
+          cursor.userId === userId
+            ? { ...cursor, row: position.x, col: position.y }
+            : cursor
+        )
+      );
+    }
+
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
+    socket.on("cursor_move", handleCursorMove);
 
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
-      
+      socket.off("cursor_move", handleCursorMove);
     };
 
   }, []);
+
+  useEffect(() => {
+    socket.emit("cursor_move", {
+      roomId,
+
+      position,
+      userId: currentUserId,
+
+    })
+  }, [position])
 
   const sendMessage = (msg) => {
     socket.emit("send-message", {
@@ -124,7 +165,9 @@ const RoomProvider = ({ children }) => {
         code,
         setCode,
         setothersMessage,
-        othersMessage
+        othersMessage,
+        cursors, position,
+        currentUserId
       }}
     >
       {children}
