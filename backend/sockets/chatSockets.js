@@ -16,8 +16,6 @@ export default function chatSocket({ io, socket }) {
         const newMsg = await Chat.findById(message._id)
             .populate("senderId", "username")
 
-
-
         //send to everyone
         io.to(roomId).emit("receive-message", newMsg);
     })
@@ -38,7 +36,7 @@ export default function chatSocket({ io, socket }) {
         const messages = await Chat.find({ roomId }).sort({ createdAt: 1 }).limit(50)
             .populate("senderId", "username");
 
-        socket.emit("receive-all-messages", messages.reverse());
+        socket.emit("receive-all-messages", messages);
     });
 
 }

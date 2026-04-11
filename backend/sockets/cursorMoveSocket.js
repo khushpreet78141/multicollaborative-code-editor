@@ -8,18 +8,19 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
 
         if(!socket.rooms.has(roomId)) return;
         
-         
         room.cursors.set(socket.id,{
             ...position,
             userName:socket.user?.name
         });
+
         socket.to(roomId).emit("cursor-update",{
-            socketId:socket.id,
+            userId:socket.user.id,
             position,
             userName:socket.user.name
         });
     })
     
+
     // typing indicator
     socket.on("typing",({roomId})=>{
         if(!roomId) return;

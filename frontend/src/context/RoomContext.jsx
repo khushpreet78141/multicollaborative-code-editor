@@ -101,8 +101,8 @@ const RoomProvider = ({ children }) => {
 
     const handleGetMessage = (messages) => {
       console.log("all messages", messages);
-      //setothersMessage(messages)
-      setMessages(messages)
+      setothersMessage(messages)
+      //setMessages(messages)
 
     }
     // const handleCursorMove = ({ roomId, position, userId }) => {

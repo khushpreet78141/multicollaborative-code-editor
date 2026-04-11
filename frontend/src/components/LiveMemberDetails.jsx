@@ -3,6 +3,7 @@ import { useRoom } from "../context/RoomContext";
 
 const LiveMemberDetails = () => {
   const { members } = useRoom();
+ 
 
   return (
     <div className="bg-[#0f172a] border border-white/10 w-full h-full min-h-0 flex flex-col p-4 rounded-2xl shadow-lg">

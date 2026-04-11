@@ -58,7 +58,6 @@ const RoomInterface = () => {
         <div className="flex-1 flex justify-center text-white">
           ...
 
-
         </div>
         <div className="fixed h-[600px]"
           style={{
@@ -78,10 +77,12 @@ const RoomInterface = () => {
             right: chatOpen ? chatWidth : "0",
             top: 0,
             transition: "all 0.3s ease-in-out",
-          }} >
+          }}>
+
             <div onClick={() => setChatOpen(!chatOpen)} className="h-[100px] bg-white/20 flex flex-col justify-center items-center" style={{ borderTopLeftRadius: 5, borderBottomLeftRadius: 5 }}>
               {chatOpen ? <ArrowRight className="text-white" onClick={() => setChatOpen(!chatOpen)} /> : <ArrowLeft className="text-white" onClick={() => setChatOpen(!chatOpen)} />}
             </div>
+            
           </div>
         </div>
 
