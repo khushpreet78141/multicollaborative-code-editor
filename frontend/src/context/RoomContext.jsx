@@ -44,13 +44,9 @@ const RoomProvider = ({ children }) => {
     setMembers,
     setCursors
   });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const handleMouseMove = (e) => setPosition({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+
+
   //useffect for connection
   useEffect(() => {
     socket.connect();
@@ -109,39 +105,39 @@ const RoomProvider = ({ children }) => {
       setMessages(messages)
 
     }
-    const handleCursorMove = ({ roomId, position, userId }) => {
-      setCursors((prev) =>
-        prev.map((cursor) =>
-          cursor.userId === userId
-            ? { ...cursor, row: position.x, col: position.y }
-            : cursor
-        )
-      );
-    }
+    // const handleCursorMove = ({ roomId, position, userId }) => {
+    //   setCursors((prev) =>
+    //     prev.map((cursor) =>
+    //       cursor.userId === userId
+    //         ? { ...cursor, row: position.x, col: position.y }
+    //         : cursor
+    //     )
+    //   );
+    // }
 
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
-    socket.on("cursor_move", handleCursorMove);
+    // socket.on("cursor_move", handleCursorMove);
 
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
-      socket.off("cursor_move", handleCursorMove);
+      // socket.off("cursor_move", handleCursorMove);
     };
 
   }, []);
 
-  useEffect(() => {
-    socket.emit("cursor_move", {
-      roomId,
+  // useEffect(() => {
+  //   socket.emit("cursor_move", {
+  //     roomId,
 
-      position,
-      userId: currentUserId,
+  //     position,
+  //     userId: currentUserId,
 
-    })
-  }, [position])
+  //   })
+  // }, [position])
 
   const sendMessage = (msg) => {
     socket.emit("send-message", {
@@ -166,7 +162,7 @@ const RoomProvider = ({ children }) => {
         setCode,
         setothersMessage,
         othersMessage,
-        cursors, position,
+        cursors,
         currentUserId
       }}
     >

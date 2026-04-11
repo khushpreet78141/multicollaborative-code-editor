@@ -9,7 +9,7 @@ import LiveFileTab from '../components/LiveFileTab';
 import React, { useEffect, useState } from 'react'
 import ResizeHandle from '.././utils/ResizeHandle';
 import { useRoom } from "../context/RoomContext";
-import { MousePointer2, TextCursor } from "lucide-react";
+import { ArrowLeft, ArrowLeftSquare, ArrowRight, MousePointer2, TextCursor } from "lucide-react";
 
 
 const RoomInterface = () => {
@@ -17,62 +17,72 @@ const RoomInterface = () => {
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [chatWidth, setChatWidth] = useState(280);
   const { cursors, position, currentUserId } = useRoom();
+  const [sideBarOpen, setSidebarOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(true);
 
   return (
     <>
-      <div className="h-screen flex bg-[#020617] overflow-hidden">
+      <div className="h-screen   bg-[#020617] overflow-hidden">
+
 
         {/* Sidebar */}
-        <div
-          style={{ width: sidebarWidth }}
-          className="h-full border-r border-white/10"
+        <div className="fixed h-full"
+          style={{
+            width: sidebarWidth,
+            top: 0,
+            left: sideBarOpen ? 0 : "-100%",
+            transition: "all 0.3s ease-in-out",
+          }}
         >
-          <LiveMemberDetails />
+          <div
+            style={{ width: sidebarWidth }}
+            className="h-full border-r border-white/10"
+          >
+            <LiveMemberDetails />
+
+          </div>
+
+          {/* Resize Handle */}
+          <ResizeHandle setSidebarWidth={setSidebarWidth} />
+          <div className="fixed text-white h-full flex  flex-col items-center justify-center" style={{
+            left: sideBarOpen ? sidebarWidth : "0",
+            top: 0,
+            transition: "all 0.3s ease-in-out",
+          }} >
+            <div onClick={() => setSidebarOpen(!sideBarOpen)} className="h-[100px] bg-white/20 flex flex-col justify-center items-center" style={{ borderTopRightRadius: 5, borderBottomRightRadius: 5 }}>
+              {sideBarOpen ? <ArrowLeft className="text-white" onClick={() => setSidebarOpen(!sideBarOpen)} /> : <ArrowRight className="text-white" onClick={() => setSidebarOpen(!sideBarOpen)} />}
+            </div>
+          </div>
         </div>
-
-        {/* Resize Handle */}
-        <ResizeHandle setSidebarWidth={setSidebarWidth} />
-
         {/* Main */}
-        <div className="flex-1 text-white">
+        <div className="flex-1 flex justify-center text-white">
           ...
 
-          {cursors.filter(c => c.userId !== currentUserId).map((cursor) => (
-            <div key={cursor.userId} className={`absolute bg-[${cursor.color}] text-black z-50 pointer-events-none ${cursor.color} 
-          
-            `}
-              style={{
-                top: cursor.col,
-                left: cursor.row,
 
-              }}
-            >
-
-
-              <div className="w-2 h-2 rounded-full bg-white absolute left-[-2px] top-[-2px] text-white">
-                <MousePointer2 />
-              </div>
-              <span style={{
-                backgroundColor: cursor.color,
-                position: 'absolute',
-                left: '23px',
-                borderTopRightRadius: '5px',
-                borderBottomLeftRadius: '5px'
-              }}>
-                {cursor.userName}
-              </span>
-            </div>
-          ))}
-          {/* {/* {console.log("cursors", cursors)} */}
-
-          {position.x} {position.y}
         </div>
-
-        <div
-          style={{ width: chatWidth }}
-          className="h-full border-r border-white/10"
+        <div className="fixed h-[600px]"
+          style={{
+            width: chatWidth,
+            top: 0,
+            right: chatOpen ? 0 : "-100%",
+            transition: "all 0.3s ease-in-out",
+          }}
         >
-          <LiveChat />
+          <div
+            style={{ width: chatWidth }}
+            className="h-full border-r border-white/10"
+          >
+            <LiveChat />
+          </div>
+          <div className="fixed text-white h-[600px] flex  flex-col items-center justify-center" style={{
+            right: chatOpen ? chatWidth : "0",
+            top: 0,
+            transition: "all 0.3s ease-in-out",
+          }} >
+            <div onClick={() => setChatOpen(!chatOpen)} className="h-[100px] bg-white/20 flex flex-col justify-center items-center" style={{ borderTopLeftRadius: 5, borderBottomLeftRadius: 5 }}>
+              {chatOpen ? <ArrowRight className="text-white" onClick={() => setChatOpen(!chatOpen)} /> : <ArrowLeft className="text-white" onClick={() => setChatOpen(!chatOpen)} />}
+            </div>
+          </div>
         </div>
 
       </div>
