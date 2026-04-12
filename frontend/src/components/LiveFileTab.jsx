@@ -5,8 +5,8 @@ import FileDropDown from '../utils/FileDropDown';
 import { ChevronDown, ChevronRight, FileCodeCorner, FolderCode } from 'lucide-react';
 
 const LiveFileTab = () => {
-  const [width, setWidth] = useState(400);
-  const { dir, hierarchy, selectAndEditFolder } = useRoom();
+  const [width, setWidth] = useState(300);
+  const { dir, hierarchy, selectAndEditFolder, file_loading } = useRoom();
 
   const ObjectRenderor = (obj) => {
     const [openFOLDER, setOpenFOLDER] = useState(false);
@@ -47,8 +47,8 @@ const LiveFileTab = () => {
     );
   }
   return (
-    <div className='h-screen   bg-white/5 border border-white/10 flex justify-between'
-      style={{ width: width, }}
+    <div className='h-screen overflow-y-auto flex-shrink-0 bg-white/5 border border-white/10 flex justify-between'
+      style={{ width: width }}
     >
       <div className='h-full w-full p-5'>
         <div className='flex w-full justify-between '>
@@ -60,12 +60,13 @@ const LiveFileTab = () => {
         <hr className='border-white/10 mt-3 mb-3' />
         {hierarchy.name !== "none" && <ObjectRenderor obj={hierarchy} />}
         {hierarchy.name == "none" && (<>
-          <center> <button
+          {file_loading && <center>Loading File...</center>}
+          {!file_loading && <center> <button
             onClick={() => selectAndEditFolder()}
             className='bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-all duration-200'>
             Open Folder
           </button>
-          </center>
+          </center>}
         </>)}
 
 

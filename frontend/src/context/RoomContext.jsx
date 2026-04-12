@@ -20,6 +20,7 @@ const RoomProvider = ({ children }) => {
   const [cursors, setCursors] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null);
   const [dir, setDir] = useState(null)
+  const [file_loading, setFileLoading] = useState(false)
   const [hierarchy, setHierarchy] = useState(
     {
       name: "none",
@@ -33,6 +34,7 @@ const RoomProvider = ({ children }) => {
   );
   async function selectAndEditFolder() {
     try {
+      setFileLoading(true)
       const dirHandle = await window.showDirectoryPicker();
       console.log(`--- Reading hierarchy for: ${dirHandle.name} ---`);
       setDir(dirHandle);
@@ -48,6 +50,8 @@ const RoomProvider = ({ children }) => {
       //  await readDirectory(dirHandle, "");
     } catch (err) {
       console.error('Error accessing files:', err);
+    } finally {
+      setFileLoading(false)
     }
   }
 
@@ -253,7 +257,7 @@ const RoomProvider = ({ children }) => {
         othersMessage,
         cursors,
         currentUserId, selectAndEditFolder, hierarchy,
-        dir
+        dir, file_loading
       }}
     >
       {children}
