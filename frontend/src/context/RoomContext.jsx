@@ -5,6 +5,7 @@ import { showInfo } from "../utils/Toast";
 import { useEffect } from "react";
 import useFileSocket from '../hooks/useFileSocket.js'
 import useRoomSocket from '../hooks/useRoomSocket.js'
+import { jwtDecode } from "jwt-decode";
 const RoomContext = createContext();
 
 
@@ -16,21 +17,33 @@ const RoomProvider = ({ children }) => {
   const [code, setCode] = useState("");
   const [activeFileId, setActiveFileId] = useState(null);
   const [fileContent, setFileContent] = useState("")
-  const [othersMessage, setothersMessage] = useState([])
+  //const [othersMessage, setothersMessage] = useState([])
   const [cursors, setCursors] = useState([])
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserId, setcurrentUserId] = useState(null)
+  
 
   useEffect(() => {
+    
     const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setCurrentUserId(payload.userId);
-      } catch (e) {
-        console.error("Failed to decode token", e);
-      }
+
+    if(!token) return;
+     socket.auth = { token }; // update auth dynamically
+  socket.connect();
+  try{
+    const decoded = jwtDecode(token);
+    console.log("decoded here",decoded.userId)
+    setcurrentUserId(decoded.userId);
+    
+  }catch(err){
+    console.error("Token error:",err)
+  }
+  
+    return () => {
+      socket.disconnect();
     }
   }, []);
+
+
   //attaching socket logic 
   useFileSocket({
     roomId,
@@ -88,23 +101,15 @@ const RoomProvider = ({ children }) => {
       setActiveFileId(fileId);
       setCode(code);
     };
-    const handleMessage = (message) => {
-      messages.map((msg, index) => {
-        if (msg._id === message._id) {
-          return;
-        }
-
-      })
-      console.log(message)
+    const handleMessage = (message) => {  
+      console.log("sender msg",message);
       setMessages((prev) => [...prev, message]);
     }
-
     const handleGetMessage = (messages) => {
       console.log("all messages", messages);
-      setothersMessage(messages)
-      //setMessages(messages)
-
+      setMessages(messages);
     }
+
     // const handleCursorMove = ({ roomId, position, userId }) => {
     //   setCursors((prev) =>
     //     prev.map((cursor) =>
@@ -160,10 +165,12 @@ const RoomProvider = ({ children }) => {
         sendMessage,
         code,
         setCode,
-        setothersMessage,
-        othersMessage,
+        //setothersMessage,
+        //othersMessage,
+        currentUserId,
+        setcurrentUserId,
         cursors,
-        currentUserId
+        
       }}
     >
       {children}

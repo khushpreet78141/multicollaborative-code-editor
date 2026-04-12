@@ -20,16 +20,7 @@ export default function chatSocket({ io, socket }) {
         io.to(roomId).emit("receive-message", newMsg);
     })
 
-    socket.on("cursor_move", ({ roomId, position }) => {
-        // if (!roomId || !position || !userId) return;
-        // if (!socket.rooms.has(roomId)) return;
-        io.to(roomId).emit("cursor_move", {
-            roomId,
-            position,
-            userId: socket.user.id
-        })
-    })
-
+    
     socket.on("get-messages", async ({ roomId }) => {
         if (!roomId) return;
         if (!socket.rooms.has(roomId)) return;
