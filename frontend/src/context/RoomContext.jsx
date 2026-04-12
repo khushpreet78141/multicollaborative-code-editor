@@ -34,6 +34,7 @@ const RoomProvider = ({ children }) => {
       }
     }
   );
+
   async function selectAndEditFolder() {
     try {
       setFileLoading(true)
@@ -124,7 +125,7 @@ const RoomProvider = ({ children }) => {
   socket.connect();
   try{
     const decoded = jwtDecode(token);
-    console.log("decoded here",decoded.userId)
+    
     setcurrentUserId(decoded.userId);
     
   }catch(err){
@@ -262,14 +263,13 @@ const RoomProvider = ({ children }) => {
         sendMessage,
         code,
         setCode,
-        
+        fileContent,
+        setFileContent,
         currentUserId,
         setcurrentUserId,
         cursors,
-
         currentUserId, selectAndEditFolder, hierarchy,
         dir, file_loading
-
       }}
     >
       {children}

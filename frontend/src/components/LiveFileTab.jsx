@@ -14,8 +14,6 @@ const LiveFileTab = () => {
       <>
         {obj.obj.type === "directory" ? (
           <div>
-
-
             <div className='mt-2'>
               {/* <p >{obj.obj.name}</p> */}
               <span className='flex justify-start items-center gap-2' onClick={() => setOpenFOLDER(!openFOLDER)}>

@@ -6,8 +6,7 @@ import { useState } from "react";
 const LiveChat = () => {
   const { messages, sendMessage, setMessages, currentUserId } = useRoom();
   const [message, setMessage] = useState([]);
-  console.log("hello yrr", messages[0]?.senderId._id);
-  console.log("userId", currentUserId);
+  
 
   return (
     <div className="relative bg-[#0f172a] border border-white/10 w-full h-[600px] min-h-0 flex flex-col p-4 rounded-2xl shadow-lg">
