@@ -19,7 +19,96 @@ const RoomProvider = ({ children }) => {
   const [othersMessage, setothersMessage] = useState([])
   const [cursors, setCursors] = useState([])
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [dir, setDir] = useState(null)
+  const [hierarchy, setHierarchy] = useState(
+    {
+      name: "none",
+      type: 'file',
+      path: '/',
+      object: null,
+      child: {
 
+      }
+    }
+  );
+  async function selectAndEditFolder() {
+    try {
+      const dirHandle = await window.showDirectoryPicker();
+      console.log(`--- Reading hierarchy for: ${dirHandle.name} ---`);
+      setDir(dirHandle);
+      const folderHierarchy = {
+        name: dirHandle.name,
+        type: dirHandle.kind,
+        object: dirHandle,
+        path: '',
+        child: await readDirectory(dirHandle, "")
+      };
+      setHierarchy(folderHierarchy);
+      console.log("Hierarchy built:", folderHierarchy);
+      //  await readDirectory(dirHandle, "");
+    } catch (err) {
+      console.error('Error accessing files:', err);
+    }
+  }
+
+  async function readDirectory(directoryHandle, currentPath) {
+    const children = [];
+    for await (const entry of directoryHandle.values()) {
+
+
+      const fullPath = currentPath ? `${currentPath}/${entry.name}` : entry.name;
+
+      if (entry.kind === 'file') {
+
+        console.log(` File: ${fullPath}`);
+        // return {
+        //   name: entry.name,
+        //   type: entry.kind,
+        //   path: fullPath,
+        //   object: entry,
+        //   child: {}
+        // }
+        children.push({
+          name: entry.name,
+          type: entry.kind,
+          path: fullPath,
+          object: entry,
+          child: {}
+        })
+
+
+        // const file = await entry.getFile();
+        // const writable = await entry.createWritable();
+        // await writable.write('New content');
+        // await writable.close();
+
+
+      } else if (entry.kind === 'directory') {
+        console.log(` Folder: ${fullPath}`);
+        // return {
+        //   name: entry.name,
+        //   type: entry.kind,
+        //   path: fullPath,
+        //   object: entry,
+        //   child:{}
+        // }
+
+        children.push({
+          name: entry.name,
+          type: entry.kind,
+          path: fullPath,
+          object: entry,
+          child: await readDirectory(entry, fullPath)
+        })
+
+
+
+      }
+
+
+    }
+    return children;
+  }
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -101,8 +190,8 @@ const RoomProvider = ({ children }) => {
 
     const handleGetMessage = (messages) => {
       console.log("all messages", messages);
-      setothersMessage(messages)
-      //setMessages(messages)
+      //setothersMessage(messages)
+      setMessages(messages)
 
     }
     // const handleCursorMove = ({ roomId, position, userId }) => {
@@ -163,7 +252,8 @@ const RoomProvider = ({ children }) => {
         setothersMessage,
         othersMessage,
         cursors,
-        currentUserId
+        currentUserId, selectAndEditFolder, hierarchy,
+        dir
       }}
     >
       {children}

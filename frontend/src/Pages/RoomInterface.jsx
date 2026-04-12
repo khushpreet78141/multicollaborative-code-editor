@@ -16,8 +16,8 @@ const RoomInterface = () => {
   const { roomId } = useParams();
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [chatWidth, setChatWidth] = useState(280);
-  const { cursors, position, currentUserId } = useRoom();
-  const [sideBarOpen, setSidebarOpen] = useState(true);
+  const { cursors, position, currentUserId, selectAndEditFolder, dir } = useRoom();
+  const [sideBarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
 
   return (
@@ -55,8 +55,13 @@ const RoomInterface = () => {
           </div>
         </div>
         {/* Main */}
-        <div className="flex-1 flex justify-center text-white">
+        <div className="flex-1 flex justify-start text-white">
+          <LiveFileTab />
           ...
+
+          {dir?.name}
+
+          <button onClick={() => selectAndEditFolder()}>selectAndEditFolder</button>
 
         </div>
         <div className="fixed h-[600px]"
@@ -82,7 +87,7 @@ const RoomInterface = () => {
             <div onClick={() => setChatOpen(!chatOpen)} className="h-[100px] bg-white/20 flex flex-col justify-center items-center" style={{ borderTopLeftRadius: 5, borderBottomLeftRadius: 5 }}>
               {chatOpen ? <ArrowRight className="text-white" onClick={() => setChatOpen(!chatOpen)} /> : <ArrowLeft className="text-white" onClick={() => setChatOpen(!chatOpen)} />}
             </div>
-            
+
           </div>
         </div>
 
