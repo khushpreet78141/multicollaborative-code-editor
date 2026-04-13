@@ -18,9 +18,10 @@ export default function fileSockets({io, socket}) {
             fileName:"main.js",
             roomId,
             parent:null,
-            type:"file"
+            type:"file",
+            createdBy:socket?.user.id
         })
-        files = [defaultFile];
+        files = [...files,defaultFile];
         io.to(roomId).emit("file-created",defaultFile)
 
       }
@@ -81,7 +82,8 @@ socket.on("save-file",async({roomId,fileId})=>{
       roomId,
       fileName:name,
       parent:parent||null,
-      type:type||"file"
+      type:type||"file",
+      createdBy:socket.user.id
     });
     if(type !== "folder"){
       await FileContent.create({
@@ -89,8 +91,6 @@ socket.on("save-file",async({roomId,fileId})=>{
       content: ""
     });
     }
-    
-
     io.to(roomId).emit("file-created", file);
   });
 

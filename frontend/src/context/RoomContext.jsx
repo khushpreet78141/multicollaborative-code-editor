@@ -18,7 +18,7 @@ const RoomProvider = ({ children }) => {
   const [activeFileId, setActiveFileId] = useState(null);
   const [fileContent, setFileContent] = useState("")
   const [cursors, setCursors] = useState([])
-
+  
   const [currentUserId, setcurrentUserId] = useState(null)
   const [dir, setDir] = useState(null)
   const [file_loading, setFileLoading] = useState(false)
@@ -92,14 +92,7 @@ const RoomProvider = ({ children }) => {
 
       } else if (entry.kind === 'directory') {
         console.log(` Folder: ${fullPath}`);
-        // return {
-        //   name: entry.name,
-        //   type: entry.kind,
-        //   path: fullPath,
-        //   object: entry,
-        //   child:{}
-        // }
-
+        
         children.push({
           name: entry.name,
           type: entry.kind,
@@ -107,12 +100,7 @@ const RoomProvider = ({ children }) => {
           object: entry,
           child: await readDirectory(entry, fullPath)
         })
-
-
-
       }
-
-
     }
     return children;
   }
@@ -166,6 +154,9 @@ const RoomProvider = ({ children }) => {
       socket.emit("get-messages", {
         roomId
       })
+      socket.emit("get-files",{
+        roomId
+      })
     };
 
     socket.on("connect", handleConnect);
@@ -188,59 +179,57 @@ const RoomProvider = ({ children }) => {
   }, [activeFileId]);
 
 
-  //file initializing
-  useEffect(() => {
+//For listening events
 
+  useEffect(() => {
+    //file initializing
     const handleFileInit = ({ fileId, code }) => {
       setActiveFileId(fileId);
       setCode(code);
     };
+
     const handleMessage = (message) => {  
       console.log("sender msg",message);
       setMessages((prev) => [...prev, message]);
     }
     const handleGetMessage = (messages) => {
       console.log("all messages", messages);
-
-
       //setothersMessage(messages)
       setMessages(messages)
 
     }
 
-    // const handleCursorMove = ({ roomId, position, userId }) => {
-    //   setCursors((prev) =>
-    //     prev.map((cursor) =>
-    //       cursor.userId === userId
-    //         ? { ...cursor, row: position.x, col: position.y }
-    //         : cursor
-    //     )
-    //   );
-    // }
+    //file creation
+    const handleCreatedFile = (file)=>{
+      console.log("file created :",file);
+      setActiveFileId(file._id);
+    }
 
+    //get all files belongs to that room
+    const handleGetFiles = (files) =>{
+      setFiles(files);
+      console.log("all files",files);
+    }
+
+    const handleUserLeft =(userId)=>{
+      showInfo(`${userId} left the room `)
+    }
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
-    // socket.on("cursor_move", handleCursorMove);
-
+    socket.on("file-created",handleCreatedFile);
+    socket.on("files-list",handleGetFiles);
+    socket.on("user-left",handleUserLeft)
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
-      // socket.off("cursor_move", handleCursorMove);
+      socket.off("file-created",handleCreatedFile);
+      socket.off("files-list",handleGetFiles);
+      socket.off("user-left",handleUserLeft);
     };
 
   }, []);
-
-  // useEffect(() => {
-  //   socket.emit("cursor_move", {
-  //     roomId,
-
-  //     position,
-  //     userId: currentUserId,
-
-  //   })
-  // }, [position])
 
   const sendMessage = (msg) => {
     socket.emit("send-message", {
@@ -248,7 +237,6 @@ const RoomProvider = ({ children }) => {
       msg
     })
   }
-
   return (
     <RoomContext.Provider
       value={{
@@ -269,7 +257,9 @@ const RoomProvider = ({ children }) => {
         setcurrentUserId,
         cursors,
         currentUserId, selectAndEditFolder, hierarchy,
-        dir, file_loading
+        dir, file_loading,
+        roomId
+        
       }}
     >
       {children}
@@ -277,38 +267,14 @@ const RoomProvider = ({ children }) => {
   );
 };
 export default RoomProvider;
-// custom hook
 
+// custom hook
 export const useRoom = () => {
   const context = useContext(RoomContext);
   if (!context) {
     throw new Error("useRoom must be used within a RoomProvider");
   }
   return context;
-
 };
 
 
-// ---------------- USAGE ----------------
-
-// Wrap your RoomInterface (or App level)
-//
-// <RoomProvider>
-//    <RoomInterface />
-// </RoomProvider>
-
-
-// Example inside any component:
-//
-// import { useRoom } from "../context/RoomContext";
-//
-// const Editor = () => {
-//   const { code, setCode } = useRoom();
-//
-//   return (
-//     <textarea
-//       value={code}
-//       onChange={(e) => setCode(e.target.value)}
-//     />
-//   );
-// };

@@ -11,7 +11,7 @@ const fileContentSchema = new Schema({
     lastEditedBy:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:true
+       
     },
     content:{
         type:String,

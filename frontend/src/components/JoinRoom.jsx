@@ -3,13 +3,14 @@ import React, { useState, useEffect } from "react";
 import axiosClient from "../../axiosClient";
 import { showError, showSuccess } from "../utils/Toast";
 import { Users, Link2, KeyRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const JoinRoom = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [inviteLink, setInviteLink] = useState("");
   const [publicRooms, setPublicRooms] = useState([]);
   const [loading, setloading] = useState(false)
-
+  const navigate = useNavigate()
   const extractCodeFromLink = ()=>{
     return inviteLink.split("/").pop();
   }
@@ -17,7 +18,7 @@ const JoinRoom = () => {
   //inviteCode.trim() ||
   //(inviteLink.trim() ? extractCodeFromLink(inviteLink) : "");
   
-  const joinRoom = async (codeFromButton) => {
+  const joinRoom = async (codeFromButton,roomId) => {
 
    
       let code = codeFromButton;
@@ -31,20 +32,10 @@ const JoinRoom = () => {
       return;
     }
 
-      code = extracted;}
- 
-      //if (!inviteCode.trim() && !inviteLink.trim()) {
-      //  showError("Enter invite code or link");
-      //  return;
-      //}
+      code = extracted;
 
-      //let finalCode = inviteCode;
+    }
 
-      //if (inviteLink.trim() && !inviteCode.trim()) {
-      //  finalCode = inviteLink.split("/").pop();
-      //}
-
-      
       try {
       setloading(true)
       console.log(code)
@@ -53,6 +44,7 @@ const JoinRoom = () => {
       }); 
 
       showSuccess("Joined room successfully ");
+      navigate(`/room/${roomId}`)
     } catch (err) {
       console.error(err);
       showError(err.response?.data?.message || "Something went wrong");
@@ -157,7 +149,7 @@ const JoinRoom = () => {
               </p>
 
               <button
-                onClick={()=>joinRoom(room.inviteCode)}
+                onClick={()=>joinRoom(room.inviteCode,room._id)}
                 className="mt-4 w-full bg-white/10 hover:bg-white/20 py-2 rounded-lg text-sm"
               >
                 Quick Join

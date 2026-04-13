@@ -6,7 +6,7 @@ const LiveEditor = () => {
   // Default to php as in your previous code
   const [language, setLanguage] = useState('php');
   const isRemoteChange = useRef(false);
-  const {activeFileId,fileContent,setFileContent,roomId} = useRoom()
+  const {activeFileId,fileContent,setFileContent,roomId,socket} = useRoom()
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
@@ -30,9 +30,7 @@ const LiveEditor = () => {
     code: value
    
   });
-
   }
-
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
 
