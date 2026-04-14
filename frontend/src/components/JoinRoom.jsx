@@ -38,7 +38,7 @@ const JoinRoom = () => {
 
       try {
       setloading(true)
-      console.log(code)
+      
       await axiosClient.post("/room/addMember", {
         inviteCode: code,
       }); 
@@ -154,6 +154,7 @@ const JoinRoom = () => {
               >
                 Quick Join
               </button>
+              
             </div>
           ))}
         </div>

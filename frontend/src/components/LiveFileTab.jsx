@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight, FileCodeCorner, FolderCode,FilePlus,Save } f
 
 
 const LiveFileTab = () => {
-  const [width, setWidth] = useState(300);
+  const [width, setWidth] = useState(279);
   const { dir, hierarchy, selectAndEditFolder, file_loading,roomId,files} = useRoom();
   const [fileName, setFileName] = useState("")
   const [type, setType] = useState("file");
@@ -16,7 +16,7 @@ const LiveFileTab = () => {
 
 const handleCreateFile = ()=>{
     socket.emit("create-file",{roomId,name:fileName,type,parent})
-    console.log("file created");
+    
     setFileName("");
     setType("file");
     setCreateFileOpen(true);
@@ -59,21 +59,21 @@ const handleCreateFile = ()=>{
     );
   }
   return (
-    <div className='h-screen overflow-y-auto flex-shrink-0 bg-white/5 border border-white/10 flex justify-between'
+    <div className='h-full  bg-[#0f172a] border  border-white/10 flex justify-between  min-h-0  flex-col  rounded-2xl shadow-l '
       style={{ width: width }}
     >
-      <div className='h-full w-full p-5'>
-         <button onClick={()=>setCreateFileOpen((prev)=>!prev)}><FilePlus /></button>
+      <div className='h-full w-full '>
+         <button onClick={()=>setCreateFileOpen((prev)=>!prev)} className='text-white'><FilePlus /></button>
          {createFileOpen && <><div className=''>
-          <input type="text" placeholder='file-name' value={fileName} onChange={(e)=>setFileName(e.target.value)}/>
-          <select name="type"  value={type} onChange={(e)=>setType(e.target.value)}>
-            <option value="file">file</option>
-            <option value="folder">folder</option>
+          <input type="text" className='text-white' placeholder='file-name' value={fileName} onChange={(e)=>setFileName(e.target.value)}/>
+          <select name="type" className='text-white' value={type} onChange={(e)=>setType(e.target.value)}>
+            <option value="file" className='text-white'>file</option>
+            <option value="folder" className='text-white'>folder</option>
             </select>
-            <button onClick={handleCreateFile}><Save /></button>
+            <button onClick={handleCreateFile} className='text-white'><Save /></button>
             </div></>}
         <div className='flex w-full justify-between'>  
-          <p>File Structure: {dir?.name}</p>
+          <p className='text-white'>File Structure: {dir?.name}</p>
 
           {/*<button onClick={() => selectAndEditFolder()}>selectAndEditFolder</button>*/}
 
@@ -95,7 +95,7 @@ const handleCreateFile = ()=>{
       <div>
         {files.map((item,index)=>{
         return(
-          <div>
+          <div className='text-white'>
             {item.fileName}
           </div>
         )

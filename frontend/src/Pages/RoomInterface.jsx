@@ -8,8 +8,9 @@ import LiveChat from '../components/LiveChat';
 import LiveFileTab from '../components/LiveFileTab';
 import React, { useEffect, useState } from 'react'
 import ResizeHandle from '.././utils/ResizeHandle';
+import RoomTopBar from "../components/RoomTopBar";
 import { useRoom } from "../context/RoomContext";
-import { ArrowLeft, ArrowLeftSquare, ArrowRight, MousePointer2, TextCursor } from "lucide-react";
+import { ArrowLeft, ArrowLeftSquare, ArrowRight, MousePointer2, TextCursor,FileBox,Users } from "lucide-react";
 
 
 const RoomInterface = () => {
@@ -19,12 +20,13 @@ const RoomInterface = () => {
   const { cursors, position, currentUserId, selectAndEditFolder, dir } = useRoom();
   const [sideBarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [tab, setTab] = useState("members")
 
   return (
     <>
       <div className="h-screen   bg-[#020617] overflow-hidden">
 
-
+        <RoomTopBar/>
         {/* Sidebar */}
         <div className="fixed h-full z-50"
           style={{
@@ -36,14 +38,21 @@ const RoomInterface = () => {
         >
           <div
             style={{ width: sidebarWidth }}
-            className="h-full border-r border-white/10"
+            className="h-full border-r border-white/10 top-13 relative"
           >
-            <LiveMemberDetails />
+            <div className="bg-[#0f172a]  border-white/10 flex gap-0 w-full p-1">
+           <button className="text-white border   border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center" onClick={()=>setTab("members")}><Users /><span>Members</span></button>
+           <button className="text-white border  border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center" onClick={()=>setTab("files")}> <FileBox /><span>Files</span></button>
+           </div>
+           {tab==="members"?<LiveMemberDetails />:<LiveFileTab/>}
+          
+            
+         
 
           </div>
 
-          {/* Resize Handle */}
-          <ResizeHandle setSidebarWidth={setSidebarWidth} />
+          {/*Resize Handle*/}
+          {/*<ResizeHandle setSidebarWidth={setSidebarWidth} />*/}
           <div className="fixed text-white h-full flex z-50 flex-col items-center justify-center" style={{
             left: sideBarOpen ? sidebarWidth : "0",
             top: 0,
@@ -56,7 +65,7 @@ const RoomInterface = () => {
         </div>
         {/* Main */}
         <div className="flex-1 flex justify-start items-center text-white h-screen">
-          <LiveFileTab />
+          {/*<LiveFileTab />*/}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
             <div className="h-[50px] bg-white/10">
 

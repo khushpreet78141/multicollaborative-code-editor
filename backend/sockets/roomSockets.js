@@ -70,14 +70,16 @@ export default function registerRoomEvents(io,socket,roomUsers){
     socket.on("leave-room", ({ roomId }) => {
   socket.leave(roomId);
 
+  const room = roomUsers.get(roomId)
+
   // remove from your custom state
-  roomUsers[roomId] = roomUsers[roomId].filter(
-    user => user.userId !== socket.user.id
+  room.users = room.users.filter(
+    user => user.socketId !== socket.id
   );
 
   // notify others
   io.to(roomId).emit("user-left", {
-    userId: socket.user.id
+    username: socket.user.name
   });
 });
     //Disconnect

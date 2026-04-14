@@ -17,7 +17,7 @@ const CreateRoom = () => {
     const res = await axiosClient.post("/room",{
       title,visibility
     });
-    console.log(res.data);
+   
      setroomId(res.data.roomId)
     setStep(2);
     showSuccess("Room created successfully !");

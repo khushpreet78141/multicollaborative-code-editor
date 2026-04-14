@@ -4,7 +4,7 @@ const requireMember = async (req, res, next) => {
     try {
         const roomId = req.params.roomId;
         const userId = req.user.userId;
-        const room = await Room.findById(roomId);
+       
 
         if (!roomId) {
             return res.status(400).json({
@@ -12,6 +12,8 @@ const requireMember = async (req, res, next) => {
                 message: "roomId is required"
             })
         }
+         const room = await Room.findById(roomId)
+                                .populate("owner","username");
         //check owner
         if (!room) {
             return res.status(404).json({

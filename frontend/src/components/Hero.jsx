@@ -7,7 +7,7 @@ const Hero = () => {
     const goDashboard = async () => {
     try{
        const user = await axiosClient.get('auth/getUser');
-      console.log(user);
+      
        navigate('/dashboard');
     }catch(err){
        console.log(err);

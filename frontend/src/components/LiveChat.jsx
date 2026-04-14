@@ -9,7 +9,7 @@ const LiveChat = () => {
   
 
   return (
-    <div className="relative bg-[#0f172a] border border-white/10 w-full h-[600px] min-h-0 flex flex-col p-4 rounded-2xl shadow-lg">
+    <div className="relative bg-[#0f172a] border border-white/10 w-full h-[600px] min-h-0 flex top-20 flex-col p-4 rounded-2xl shadow-lg">
 
       {/* Header */}
       <h2 className="text-white text-lg font-semibold mb-4 tracking-wide">

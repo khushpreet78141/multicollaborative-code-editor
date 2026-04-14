@@ -209,10 +209,12 @@ const RoomProvider = ({ children }) => {
     const handleGetFiles = (files) =>{
       setFiles(files);
       console.log("all files",files);
+      
     }
 
-    const handleUserLeft =(userId)=>{
-      showInfo(`${userId} left the room `)
+    const handleUserLeft =(username)=>{
+      showInfo(`${username} left the room `)
+      console.log(`${username} left the room`)
     }
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
