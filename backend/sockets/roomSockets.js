@@ -12,7 +12,7 @@ export default function registerRoomEvents(io,socket,roomUsers){
          
     });
 
-    if (!member) return;
+    if (!member) return socket.emit("error","Not a member of this room !");
     socket.data.roles = socket.data.roles || {};
     socket.data.roles[roomId] = member.role;
     //join socket.io room
@@ -36,6 +36,8 @@ export default function registerRoomEvents(io,socket,roomUsers){
         )
 
         if(!alreadyExists){
+            
+            
             room.users.push({
                 socketId:socket.id,
                 userId:socket.user.id,

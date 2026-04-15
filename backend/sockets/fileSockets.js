@@ -1,8 +1,8 @@
 import activeFiles from "../source/stores/activeFileStore.js";
 import FileContent from "../source/models/fileContentSchema.js";
 import File from "../source/models/fileSchema.js";
-
-export default function fileSockets({io, socket}) {
+import RoomMember from '../source/models/roomMemberSchema.js'
+export default function fileSockets({io, socket,roomUsers}) {
   socket.on("get-files", async ({ roomId }) => {
 
     if (!roomId) return;
@@ -77,7 +77,11 @@ socket.on("save-file",async({roomId,fileId})=>{
 
     if (!roomId || !name) return;
     if (!socket.rooms.has(roomId)) return;
-
+    const role = socket.data.roles[roomId]
+    
+    if(role!=="owner" && role!=="editor"){
+      return socket.emit("error","Permission denied for creation of File !");
+    }
     const file = await File.create({
       roomId,
       fileName:name,
@@ -85,6 +89,8 @@ socket.on("save-file",async({roomId,fileId})=>{
       type:type||"file",
       createdBy:socket.user.id
     });
+    console.log(file);
+   
     if(type !== "folder"){
       await FileContent.create({
       fileId: file._id,
@@ -100,7 +106,10 @@ socket.on("save-file",async({roomId,fileId})=>{
 
     if (!roomId || !fileId || !name) return;
     if (!socket.rooms.has(roomId)) return;
-
+    
+     if(role!=="owner" && role!=="editor"){
+      return socket.emit("error","Permission denied for Rename of File !");
+    }
     const file = await File.findByIdAndUpdate(
       fileId,
       { name },
@@ -118,9 +127,12 @@ socket.on("save-file",async({roomId,fileId})=>{
 
   // DELETE FILE
   socket.on("delete-file", async ({ roomId, fileId }) => {
-
-    if (!roomId || !fileId) return;
+      if (!roomId || !fileId) return;
     if (!socket.rooms.has(roomId)) return;
+    
+    if(role!=="owner" && role!=="editor"){
+      return socket.emit("error","Permission denied for Deletion of File !");
+    }
 
     async function deleteRecursive(fileId) {
       const children = await File.find({parent:fileId})

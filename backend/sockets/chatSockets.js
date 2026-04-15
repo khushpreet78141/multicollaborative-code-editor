@@ -26,7 +26,7 @@ export default function chatSocket({ io, socket }) {
         if (!socket.rooms.has(roomId)) return;
         const messages = await Chat.find({ roomId }).sort({ createdAt: 1 }).limit(50)
             .populate("senderId", "username");
-
+            
         socket.emit("receive-all-messages", messages);
     });
 
