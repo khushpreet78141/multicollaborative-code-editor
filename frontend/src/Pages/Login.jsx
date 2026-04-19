@@ -16,7 +16,7 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);  
+     
     loginUser(data);
   };
 
@@ -29,7 +29,7 @@ const Login = () => {
     });
 
     localStorage.setItem("token",res.data.token)
-    console.log(res);
+    
     setTimeout(() => {
       navigate('/dasboard')
     }, 1000);

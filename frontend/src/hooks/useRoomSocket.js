@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import socket from "../utils/socket";
+import { showInfo } from "../utils/Toast";
 
 const useRoomSocket = ({ roomId, setMembers, setCursors }) => {
   const getRandomColor = () => {
@@ -34,10 +35,13 @@ const useRoomSocket = ({ roomId, setMembers, setCursors }) => {
     });
 
     socket.on("user-joined", (user) => {
+      showInfo(`${user.username} join `)
       console.log("User joined:", user);
+
     });
 
     socket.on("user-left", (user) => {
+      showInfo(`${user.username} left `)
       console.log("User left:", user);
     });
 

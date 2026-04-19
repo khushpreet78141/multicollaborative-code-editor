@@ -10,7 +10,10 @@ const RoomTopBar = () => {
   const {roomId} = useRoom()
   const [roomDetails, setRoomDetails] = useState({});
   const [copied, setCopied] = useState("");
-  const inviteCode = roomDetails.inviteCode
+ 
+
+
+  
   const navigate = useNavigate();
   //const inviteLink =  `${window.location.origin}/addMember/${inviteCode}`;
 
@@ -26,6 +29,8 @@ const RoomTopBar = () => {
     getDetails();
   }, [roomId]);
 
+  
+  const inviteCode = roomDetails.inviteCode
   const handleCopy = async(type)=>{
     if(type==="code"){
       await navigator.clipboard.writeText(`${inviteCode}`);
@@ -38,10 +43,13 @@ const RoomTopBar = () => {
   }
 
   const handleLeave = ()=>{
+    const confirmed = window.confirm("are you sure to leave the Room ?")
+    if(!confirmed) return;
     socket.emit("leave-room",{roomId}); 
     console.log("emit leave user event");
     navigate('/dasboard');
   }
+   
 
   return (
     

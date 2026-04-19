@@ -212,11 +212,6 @@ const RoomProvider = ({ children }) => {
       
     }
 
-    const handleUserLeft =(username)=>{
-      showInfo(`${username} left the room `)
-      console.log(`${username} left the room`)
-    }
-
     const handleError =(msg)=>{
       showError(`${msg}`)
     }
@@ -225,7 +220,7 @@ const RoomProvider = ({ children }) => {
     socket.on("receive-all-messages", handleGetMessage);
     socket.on("file-created",handleCreatedFile);
     socket.on("files-list",handleGetFiles);
-    socket.on("user-left",handleUserLeft);
+   
     socket.on("error",handleError)
     return () => {
       socket.off("file-init", handleFileInit);
@@ -233,7 +228,7 @@ const RoomProvider = ({ children }) => {
       socket.off("receive-all-messages", handleGetMessage);
       socket.off("file-created",handleCreatedFile);
       socket.off("files-list",handleGetFiles);
-      socket.off("user-left",handleUserLeft);
+     
       socket.off("error",handleError);
     };
 

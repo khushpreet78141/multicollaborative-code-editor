@@ -1,7 +1,7 @@
 import RoomMember from '../models/roomMemberSchema.js'
 import AppError from '../utils/AppError.js';
 import Room from '../models/roomSchema.js'
-
+import mongoose from 'mongoose';
 async function removeRoomMemberService(roomId,memberId){
     const room = await Room.findById(roomId);
 
@@ -11,12 +11,15 @@ async function removeRoomMemberService(roomId,memberId){
     if(room.owner.toString() === memberId){
         throw new AppError("room owner can't be removed",400)
     }
-    const deletedMember = await RoomMember.deleteOne({roomId,memberId});
+
+    const deletedMember = await RoomMember.deleteOne({
+            roomId: new mongoose.Types.ObjectId(roomId),
+            memberId: new mongoose.Types.ObjectId(memberId),
+    });
 
     if(deletedMember.deletedCount===0){
         throw new AppError("Member not found in this room!",404);
-    }
-    
+    }   
 }
 
 export default removeRoomMemberService;

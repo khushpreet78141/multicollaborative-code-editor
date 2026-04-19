@@ -26,7 +26,6 @@ const Dashboard = () => {
     { id: "joinedRooms", label: "Joined Rooms", icon: <Users size={18} /> },
   ];
 
-
   return (
     <>
      <div className="flex h-screen bg-gradient-to-br from-black via-gray-900 to-gray-950 text-white">

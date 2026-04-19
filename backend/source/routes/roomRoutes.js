@@ -1,5 +1,5 @@
 import { Router } from "express";
-
+import getAllMembersOwnedController from "../controllers/getAllMembersOwnedController.js";
 import auth from "../middleware/authMiddleware.js";
 import requireOwner from "../middleware/Authorization/requireOwner.js";
 import requireMember from "../middleware/Authorization/requireMember.js";
@@ -56,6 +56,9 @@ router.put("/:roomId/members/:memberId/role", auth,requireMember, requireOwner, 
 
 //list all rooms where a user is a member
 router.get("/listRooms",auth,asyncHandler(listingRoomUserController));
+
+// listing members of a room where user is a owner
+router.get("/ownerRoom/listAllMembers/:roomId",auth,requireMember,requireOwner,asyncHandler(getAllMembersOwnedController));
 
 
 // leave room

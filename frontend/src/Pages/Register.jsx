@@ -17,7 +17,7 @@ const Register = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    
     registerUser(data);
   };
 
@@ -32,7 +32,7 @@ const Register = () => {
         showSuccess("Registered successfully !");
     }
     localStorage.setItem("token",res.data.token)
-    console.log(res)
+    
     setTimeout(() => {
         navigate("/dasboard")
     }, 1000);

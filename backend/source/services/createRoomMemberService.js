@@ -10,6 +10,9 @@ async function createRoomMemberService(inviteCode,userId){
             throw new  AppError("room not found",404)
         }
         try{
+
+            const findMember = await RoomMember.findOne({roomId:findRoom._id,memberId:userId});
+            if(findMember) return findMember;
             const member = await RoomMember.create({
             roomId:findRoom._id,
             memberId:userId,
@@ -18,9 +21,6 @@ async function createRoomMemberService(inviteCode,userId){
         return member   
         }
         catch(error){
-            if(error.code===11000){
-                throw new AppError("Already a member",409)
-            }
             throw error
         }   
 }

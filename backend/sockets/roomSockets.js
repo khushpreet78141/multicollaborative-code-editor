@@ -81,8 +81,11 @@ export default function registerRoomEvents(io,socket,roomUsers){
 
   // notify others
   io.to(roomId).emit("user-left", {
-    username: socket.user.name
-  });
+        socketId:socket.id,
+        username:socket.user?.name
+  }
+    
+  );
 });
     //Disconnect
 
