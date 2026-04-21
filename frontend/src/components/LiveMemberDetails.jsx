@@ -2,8 +2,9 @@ import React from "react";
 import { useRoom } from "../context/RoomContext";
 
 const LiveMemberDetails = () => {
-  const { members } = useRoom();
- 
+  const { members,currentUserId } = useRoom();
+
+
 
   return (
     <div className="bg-[#0f172a] border border-white/10 w-full h-full min-h-0 flex flex-col p-4 rounded-2xl shadow-lg">
@@ -41,7 +42,7 @@ const LiveMemberDetails = () => {
               {/* User Info */}
               <div className="flex flex-col flex-1">
                 <h3 className="text-white text-sm font-medium">
-                  {member.username}
+                  {member.userId===currentUserId ? <span className="text-green-500">You</span> : member.username}
                 </h3>
 
                 {/* Active File */}

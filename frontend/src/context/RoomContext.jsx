@@ -34,6 +34,8 @@ const RoomProvider = ({ children }) => {
       }
     }
   );
+  const [cursorHandler, setCursorHandler] = useState(null);
+  //const cursorDataRef = useRef({});
 
   async function selectAndEditFolder() {
     try {
@@ -212,6 +214,16 @@ const RoomProvider = ({ children }) => {
       
     }
 
+    //cursor details for all users in particular file
+  const handleCursorUpdates = ()=>{
+    socket.on("cursor-update", (data) => {
+    if (cursorHandler) {
+     cursorHandler(data);  // 🔥 forward to editor
+   }
+    });
+  }
+  
+
     const handleError =(msg)=>{
       showError(`${msg}`)
     }
@@ -220,15 +232,16 @@ const RoomProvider = ({ children }) => {
     socket.on("receive-all-messages", handleGetMessage);
     socket.on("file-created",handleCreatedFile);
     socket.on("files-list",handleGetFiles);
-   
-    socket.on("error",handleError)
+    socket.on("cursor-update",handleCursorUpdates);
+    socket.on("error",handleError);
+
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
       socket.off("file-created",handleCreatedFile);
       socket.off("files-list",handleGetFiles);
-     
+      socket.off("cursor-update",handleCursorUpdates)
       socket.off("error",handleError);
     };
 
@@ -261,7 +274,8 @@ const RoomProvider = ({ children }) => {
         cursors,
         currentUserId, selectAndEditFolder, hierarchy,
         dir, file_loading,
-        roomId
+        roomId,
+        setCursorHandler
         
       }}
     >

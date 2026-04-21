@@ -1,8 +1,9 @@
 export default function generateCursorMoveEvents({io,socket,roomUsers}){
 
     //cursor indicator
-    socket.on("cursor-move",({roomId,position})=>{
-        if(!roomId || typeof position.lineNumber !== 'number' || typeof position.column !== 'number') return;
+    socket.on("cursor-move",({roomId,position,fileId})=>{
+        console.log("fileId",fileId);
+        if(!roomId || !fileId || typeof position.lineNumber !== 'number' || typeof position.column !== 'number') return;
         if(!roomUsers.has(roomId)) return;
         const room = roomUsers.get(roomId);
 
@@ -10,16 +11,18 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
         
         room.cursors.set(socket.id,{
             ...position,
+            fileId,
             userName:socket.user?.name
         });
 
         socket.to(roomId).emit("cursor-update",{
             userId:socket.user.id,
             position,
-            userName:socket.user.name
+            fileId,
+            userName:socket.user?.name
         });
     })
-    
+            
 
     // typing indicator
     socket.on("typing",({roomId})=>{

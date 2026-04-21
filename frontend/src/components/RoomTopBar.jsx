@@ -53,13 +53,54 @@ const RoomTopBar = () => {
 
   return (
     
-      <nav className='text-white flex justify-evenly relative z-100 bg-white/5 border-2 border-white/10  border-b-blue-800  p-2 items-center'>
-        <p> Title : {roomDetails.title}</p>
-        <p>👑 Owner : {roomDetails.owner?.username}</p>
-        {/*<h2>copyLink: <button onClick={()=>handleCopy("link")}>{copied?<CheckCheck size={16}/>:<Copy size={16}/>}</button></h2>*/}
-        <h2> InviteCode : {inviteCode} <button onClick={()=>handleCopy("code")}>{copied==="code"? <CheckCheck className='text-green-500' size={16}/>:<Copy size={16}/>}</button></h2>
-        <button onClick={handleLeave} className='bg-red-800 py-1 rounded-xl px-3'>Leave</button>
-      </nav>
+      <nav className="w-full text-white flex items-center justify-between px-6 py-3 
+  bg-[#0f172a]/80 backdrop-blur-md border-b border-white/10 shadow-sm">
+
+  {/* LEFT */}
+  <div className="flex items-center gap-6">
+    <h1 className="text-lg font-semibold tracking-wide">
+      {roomDetails.title}
+    </h1>
+
+    <div className="flex items-center gap-2 text-sm text-gray-400">
+      <span>👑</span>
+      <span>{roomDetails.owner?.username}</span>
+    </div>
+  </div>
+
+  {/* CENTER */}
+  <div className="flex items-center gap-3 bg-[#1e293b] px-4 py-2 rounded-xl border border-white/10">
+    <span className="text-sm text-gray-400">Invite Code</span>
+    
+    <span className="font-mono tracking-wider text-white">
+      {inviteCode}
+    </span>
+
+    <button
+      onClick={() => handleCopy("code")}
+      className="ml-2 p-1 rounded-md hover:bg-white/10 transition"
+    >
+      {copied === "code" ? (
+        <CheckCheck size={16} className="text-green-400" />
+      ) : (
+        <Copy size={16} />
+      )}
+    </button>
+  </div>
+
+  {/* RIGHT */}
+  <div className="flex items-center gap-3">
+    
+    {/* Leave Button */}
+    <button
+      onClick={handleLeave}
+      className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-1.5 rounded-lg text-sm transition"
+    >
+      Leave
+    </button>
+
+  </div>
+</nav>
   )
 }
 

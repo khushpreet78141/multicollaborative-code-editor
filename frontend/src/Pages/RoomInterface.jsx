@@ -41,14 +41,10 @@ const RoomInterface = () => {
             className="h-full border-r border-white/10 top-13 relative"
           >
             <div className="bg-[#0f172a]  border-white/10 flex gap-0 w-full p-1">
-           <button className="text-white border   border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center" onClick={()=>setTab("members")}><Users /><span>Members</span></button>
-           <button className="text-white border  border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center" onClick={()=>setTab("files")}> <FileBox /><span>Files</span></button>
+           <button className={`text-white border   border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center transition-all ease-out duration-75 ${tab==="members" && "bg-white/10"}`} onClick={()=>setTab("members")}><Users /><span>Members</span></button>
+           <button className={`text-white border  border-white/10 w-1/2 flex items-center gap-2 p-1 justify-center transition-all ease-out duration-75 ${tab==="files" && "bg-white/10"}`} onClick={()=>setTab("files")}> <FileBox /><span>Files</span></button>
            </div>
            {tab==="members"?<LiveMemberDetails />:<LiveFileTab/>}
-          
-            
-         
-
           </div>
 
           {/*Resize Handle*/}
@@ -68,10 +64,8 @@ const RoomInterface = () => {
           {/*<LiveFileTab />*/}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100vh' }}>
             <div className="h-[50px] bg-white/10">
-
             </div>
             <LiveEditor />
-
           </div>
           {/* <button onClick={() => selectAndEditFolder()}>selectAndEditFolder</button> */}
 
@@ -102,7 +96,6 @@ const RoomInterface = () => {
 
           </div>
         </div>
-
       </div>
     </>
   );
