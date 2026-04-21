@@ -12,12 +12,19 @@ const LiveEditor = () => {
   const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler } = useRoom()
   const decorationsRef = useRef({});
 
+const socketRef = useRef(null);
+
+useEffect(() => {
+  socketRef.current = socket;
+}, [socket]);
+
+
 
   useEffect(() => {
     setCursorHandler(() => handleCursorUpdate);
 
     return () => setCursorHandler(null); // cleanup
-  }, []);
+  }, [activeFileId]);
 
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -41,7 +48,8 @@ const LiveEditor = () => {
     }
     setFileContent(value);
     setCode(value);
-    socket.emit("code-change", {
+    if(!socketRef.current) return;
+    socketRef.current.emit("code-change", {
       roomId,
       fileId: activeFileId,
       code: value
@@ -114,16 +122,48 @@ const LiveEditor = () => {
 
       document.head.appendChild(style);
     }
+    
+
+     const decoration = [
+    {
+      range: new window.monaco.Range(
+        position.lineNumber,
+        position.column,
+        position.lineNumber,
+        position.column
+      ),
+      options: {
+        className: `remote-cursor-${userId}`,
+        afterContentClassName: `remote-label-${userId}`
+      }
+    }
+  ];
+
+  
+  decorationsRef.current[userId] =
+    editor.deltaDecorations(
+      decorationsRef.current[userId] || [],
+      decoration
+    );
   }
 
   //add throttle to handle firing of socket event 
   const emitCursor = throttle((position) => {
-    socket.emit("cursor-move", {
+    if(!socketRef.current) return;
+    socketRef.current.emit("cursor-move", {
       roomId,
+      position,
       fileId: activeFileId,
-      cursor: position
+      
     });
   }, 50);
+
+
+  useEffect(() => {
+  return () => {
+    emitCursor.cancel();
+  };
+}, []);
 
 
   return (
