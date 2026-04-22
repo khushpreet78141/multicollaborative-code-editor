@@ -17,6 +17,7 @@ async function createRoomMemberService(inviteCode,userId){
             roomId:findRoom._id,
             memberId:userId,
         });
+        
 
         return member   
         }

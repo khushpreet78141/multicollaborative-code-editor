@@ -4,14 +4,14 @@ import axiosClient from '../../axiosClient'
 import { useState } from 'react'
 import { CheckCheck,Copy, LeafyGreen } from 'lucide-react'
 import { showSuccess } from '../utils/Toast'
-import socket from '../utils/socket'
+
 import { useNavigate } from 'react-router-dom'
 const RoomTopBar = () => {
-  const {roomId} = useRoom()
+  const {roomId,socket} = useRoom()
   const [roomDetails, setRoomDetails] = useState({});
   const [copied, setCopied] = useState("");
+  const [leaving, setLeaving] = useState(false)
  
-
 
   
   const navigate = useNavigate();
@@ -42,12 +42,17 @@ const RoomTopBar = () => {
     }
   }
 
-  const handleLeave = ()=>{
+  const handleLeave = ()=> {
+    console.log("leave button");
     const confirmed = window.confirm("are you sure to leave the Room ?")
     if(!confirmed) return;
     socket.emit("leave-room",{roomId}); 
+    setLeaving(true);
+    socket.off("cursor-update");
+    socket.off("code-change");
     console.log("emit leave user event");
     navigate('/dasboard');
+
   }
    
 
@@ -55,6 +60,7 @@ const RoomTopBar = () => {
     
       <nav className="w-full text-white flex items-center justify-between px-6 py-3 
   bg-[#0f172a]/80 backdrop-blur-md border-b border-white/10 shadow-sm">
+   
 
   {/* LEFT */}
   <div className="flex items-center gap-6">
@@ -91,17 +97,26 @@ const RoomTopBar = () => {
   {/* RIGHT */}
   <div className="flex items-center gap-3">
     
-    {/* Leave Button */}
+    {/*Leave Button*/}
     <button
       onClick={handleLeave}
+      disabled={leaving}
       className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-1.5 rounded-lg text-sm transition"
     >
-      Leave
+      {leaving ? <lord-icon
+    src="https://cdn.lordicon.com/euaablbm.json"
+    trigger="loop"
+    stroke="bold"
+    state="loop-cycle"
+    colors="primary:#e4e4e4,secondary:#8930e8"
+    style="width:250px;height:250px">
+</lord-icon> : "Leave"}
     </button>
 
   </div>
 </nav>
   )
+
 }
 
 

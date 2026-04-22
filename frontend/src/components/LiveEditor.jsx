@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { useRoom } from '../context/RoomContext';
 import throttle from "lodash.throttle";
+import { positionalKeys } from 'framer-motion';
 
 
 const LiveEditor = () => {
@@ -11,7 +12,7 @@ const LiveEditor = () => {
   const isRemoteChange = useRef(false);
   const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler } = useRoom()
   const decorationsRef = useRef({});
-
+const emitCursorRef = useRef(null);
 const socketRef = useRef(null);
 
 useEffect(() => {
@@ -21,16 +22,35 @@ useEffect(() => {
 
 
   useEffect(() => {
-    setCursorHandler(() => handleCursorUpdate);
+    setCursorHandler(handleCursorUpdate);
 
     return () => setCursorHandler(null); // cleanup
   }, [activeFileId]);
 
 
+  useEffect(() => {
+    emitCursorRef.current = throttle((position)=>{
+      console.log("emit cursor event", position);
+    console.log("socket ref current", socketRef.current);
+
+    if (!socketRef.current) return;
+      socketRef.current.emit("cursor-move",{
+        roomId,
+        position,
+        fileId:activeFileId
+      })
+    },120)
+    
+    return () => {
+      emitCursorRef.current?.cancel()
+    }
+  }, [roomId,activeFileId])
+  
+
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
     editor.onDidChangeCursorPosition((e) => {
-      emitCursor(e.position);
+      emitCursorRef.current?.(e.position);
     });
   };
 
@@ -46,6 +66,7 @@ useEffect(() => {
       return;
 
     }
+    isRemoteChange.current = true;
     setFileContent(value);
     setCode(value);
     if(!socketRef.current) return;
@@ -55,6 +76,8 @@ useEffect(() => {
       code: value
     });
   };
+
+
   const cursorColors = [
   "#FF6B6B", // red
   "#4ECDC4", // teal
@@ -80,8 +103,12 @@ useEffect(() => {
 };
 
   const handleCursorUpdate = (data) => {
+    console.log("handling cursor updates");
+    console.log("userId data",data);
     const editor = editorRef.current;
+
     if (!editor) return;
+    
     const { userId, position, fileId, userName } = data;
 
     if (fileId !== activeFileId) return;
@@ -147,24 +174,21 @@ useEffect(() => {
     );
   }
 
-  //add throttle to handle firing of socket event 
-  const emitCursor = throttle((position) => {
-    if(!socketRef.current) return;
-    socketRef.current.emit("cursor-move", {
-      roomId,
-      position,
-      fileId: activeFileId,
-      
-    });
-  }, 50);
+  ////add throttle to handle firing of socket event 
+  //const emitCursor = throttle((position) => {
+  //  console.log("emit cursor event",position);
+  //  console.log("socket ref",socketRef);
 
+  //  if(!socketRef.current) return;
 
-  useEffect(() => {
-  return () => {
-    emitCursor.cancel();
-  };
-}, []);
+  //  socketRef.current.emit("cursor-move", {
+  //    roomId,
+  //    position,
+  //    fileId: activeFileId,
+  //  });
+  //}, 120);
 
+  
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>

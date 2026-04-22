@@ -14,6 +14,8 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
             fileId,
             userName:socket.user?.name
         });
+        console.log("socket move",room.cursors);
+
 
         socket.to(roomId).emit("cursor-update",{
             userId:socket.user.id,

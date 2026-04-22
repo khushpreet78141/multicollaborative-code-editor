@@ -39,19 +39,19 @@ const JoinRoom = () => {
       try {
       setloading(true)
       
-      await axiosClient.post("/room/addMember", {
+      const res = await axiosClient.post("/room/addMember", {
         inviteCode: code,
       }); 
 
       showSuccess("Joined room successfully ");
-      navigate(`/room/${roomId}`)
+      navigate(`/room/${res.data.data.roomId}`);
     } catch (err) {
       console.error(err);
       showError(err.response?.data?.message || "Something went wrong");
     } finally{
       setloading(false)
     }
-
+    
   };
 
   //const handleClick = async(Code)=>{
@@ -117,7 +117,7 @@ const JoinRoom = () => {
           </div>
 
           <button
-            onClick={()=>joinRoom()}
+            onClick={()=>joinRoom(inviteCode)}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90 transition-all py-3 rounded-xl font-medium shadow-lg"
           disabled={loading}>
             Join Room
