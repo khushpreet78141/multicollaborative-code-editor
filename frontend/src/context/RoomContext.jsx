@@ -214,15 +214,14 @@ const RoomProvider = ({ children }) => {
       
     }
 
-    //cursor details for all users in particular file
-  const handleCursorUpdates = ()=>{
-    socket.on("cursor-update", (data) => {
-      console.log("updating data ",data);
+  //cursor details for all users in particular file
+  const handleCursorUpdates = (data)=>{
+    
+    console.log("updating data ",data);
     if (cursorHandler) {
       
-     setCursorHandler(data);  // 🔥 forward to editor
+    cursorHandler(data);  // 🔥 forward to editor
    }
-    });
   }
 
 
@@ -271,14 +270,14 @@ const RoomProvider = ({ children }) => {
         setCode,
         fileContent,
         setFileContent,
-        currentUserId,
+        
         setcurrentUserId,
         cursors,
         currentUserId, selectAndEditFolder, hierarchy,
         dir, file_loading,
         roomId,
-        setCursorHandler
-        
+        setCursorHandler,
+        socket
       }}
     >
       {children}

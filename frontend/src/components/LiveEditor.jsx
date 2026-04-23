@@ -12,12 +12,27 @@ const LiveEditor = () => {
   const isRemoteChange = useRef(false);
   const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler } = useRoom()
   const decorationsRef = useRef({});
-const emitCursorRef = useRef(null);
-const socketRef = useRef(null);
+  const emitCursorRef = useRef(null);
+  const socketRef = useRef(null);
+  const monacoRef = useRef(null);
+  const pendingCursorEvents = useRef([]);
 
-useEffect(() => {
-  socketRef.current = socket;
-}, [socket]);
+  useEffect(() => {
+    socketRef.current = socket;
+  }, [socket]);
+
+
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+
+    pendingCursorEvents.current.forEach(processCursor);
+  pendingCursorEvents.current = [];
+    editor.onDidChangeCursorPosition((e) => {
+      if (!socketRef.current?.connected) return;
+      emitCursorRef.current?.(e.position);
+    });
+  };
 
 
 
@@ -29,30 +44,22 @@ useEffect(() => {
 
 
   useEffect(() => {
-    emitCursorRef.current = throttle((position)=>{
-      console.log("emit cursor event", position);
-    console.log("socket ref current", socketRef.current);
+    if (!socket) return;
 
-    if (!socketRef.current) return;
-      socketRef.current.emit("cursor-move",{
+    emitCursorRef.current = throttle((position) => {
+
+      if (!socketRef.current) return;
+      socketRef.current.emit("cursor-move", {
         roomId,
         position,
-        fileId:activeFileId
+        fileId: activeFileId
       })
-    },120)
-    
+    }, 120)
+
     return () => {
       emitCursorRef.current?.cancel()
     }
-  }, [roomId,activeFileId])
-  
-
-  const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = editor;
-    editor.onDidChangeCursorPosition((e) => {
-      emitCursorRef.current?.(e.position);
-    });
-  };
+  }, [socket, roomId, activeFileId])
 
 
   const handleLanguageChange = (e) => {
@@ -69,7 +76,7 @@ useEffect(() => {
     isRemoteChange.current = true;
     setFileContent(value);
     setCode(value);
-    if(!socketRef.current) return;
+    if (!socketRef.current) return;
     socketRef.current.emit("code-change", {
       roomId,
       fileId: activeFileId,
@@ -79,39 +86,43 @@ useEffect(() => {
 
 
   const cursorColors = [
-  "#FF6B6B", // red
-  "#4ECDC4", // teal
-  "#FFD93D", // yellow
-  "#6C5CE7", // purple
-  "#00B894", // green
-  "#0984E3", // blue
-  "#E17055", // orange
-  "#A29BFE", // light purple
-  "#FD79A8", // pink
-  "#55EFC4"  // mint
-];
+    "#FF6B6B", // red
+    "#4ECDC4", // teal
+    "#FFD93D", // yellow
+    "#6C5CE7", // purple
+    "#00B894", // green
+    "#0984E3", // blue
+    "#E17055", // orange
+    "#A29BFE", // light purple
+    "#FD79A8", // pink
+    "#55EFC4"  // mint
+  ];
 
   const getUserColor = (userId) => {
-  const colors = cursorColors;
-  let hash = 0;
+    const colors = cursorColors;
+    let hash = 0;
 
-  for (let i = 0; i < userId.length; i++) {
-    hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-  }
+    for (let i = 0; i < userId.length; i++) {
+      hash = userId.charCodeAt(i) + ((hash << 5) - hash);
+    }
 
-  return colors[Math.abs(hash) % colors.length];
-};
+    return colors[Math.abs(hash) % colors.length];
+  };
 
-  const handleCursorUpdate = (data) => {
-    console.log("handling cursor updates");
-    console.log("userId data",data);
+  const processCursor = (data) => {
     const editor = editorRef.current;
 
-    if (!editor) return;
-    
+    if (!editor) {
+      return;
+    }
+    if (!data) return; // guard
+
     const { userId, position, fileId, userName } = data;
 
-    if (fileId !== activeFileId) return;
+    if (fileId !== activeFileId) {
+     
+      return;
+    }
     if (
       !position ||
       typeof position.lineNumber !== "number" ||
@@ -149,46 +160,43 @@ useEffect(() => {
 
       document.head.appendChild(style);
     }
-    
 
-     const decoration = [
-    {
-      range: new window.monaco.Range(
-        position.lineNumber,
-        position.column,
-        position.lineNumber,
-        position.column
-      ),
-      options: {
-        className: `remote-cursor-${userId}`,
-        afterContentClassName: `remote-label-${userId}`
+
+    const decoration = [
+      {
+        range: new monacoRef.current.Range(
+          position.lineNumber,
+          position.column,
+          position.lineNumber,
+          position.column + 1
+        ),
+        options: {
+          className: `remote-cursor-${userId}`,
+          afterContentClassName: `remote-label-${userId}`
+        }
       }
-    }
-  ];
+    ];
 
-  
-  decorationsRef.current[userId] =
-    editor.deltaDecorations(
-      decorationsRef.current[userId] || [],
-      decoration
-    );
+    console.log("decorations ", decoration)
+    decorationsRef.current[userId] =
+      editor.deltaDecorations(
+        decorationsRef.current[userId] || [],
+        decoration
+      );
+
+    console.log("decoration currentId ", decorationsRef.current);
+  }
+  const handleCursorUpdate = (data) => {
+  const editor = editorRef.current;
+
+  if (!editor) {
+    pendingCursorEvents.current.push(data); // 👈 store
+    return;
   }
 
-  ////add throttle to handle firing of socket event 
-  //const emitCursor = throttle((position) => {
-  //  console.log("emit cursor event",position);
-  //  console.log("socket ref",socketRef);
+  processCursor(data); 
+};
 
-  //  if(!socketRef.current) return;
-
-  //  socketRef.current.emit("cursor-move", {
-  //    roomId,
-  //    position,
-  //    fileId: activeFileId,
-  //  });
-  //}, 120);
-
-  
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>

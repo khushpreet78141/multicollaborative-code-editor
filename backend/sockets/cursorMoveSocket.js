@@ -18,7 +18,7 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
 
 
         socket.to(roomId).emit("cursor-update",{
-            userId:socket.user.id,
+            userId:socket.user?.id,
             position,
             fileId,
             userName:socket.user?.name
