@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import { useRoom } from '../context/RoomContext';
 import throttle from "lodash.throttle";
 import { positionalKeys } from 'framer-motion';
-
+import { useCallback } from 'react';
 
 const LiveEditor = () => {
   const editorRef = useRef(null);
@@ -17,6 +17,7 @@ const LiveEditor = () => {
   const monacoRef = useRef(null);
   const pendingCursorEvents = useRef([]);
 
+
   useEffect(() => {
     socketRef.current = socket;
   }, [socket]);
@@ -29,7 +30,8 @@ const LiveEditor = () => {
     pendingCursorEvents.current.forEach(processCursor);
   pendingCursorEvents.current = [];
     editor.onDidChangeCursorPosition((e) => {
-      if (!socketRef.current?.connected) return;
+      console.log("cursor moved:", e.position);
+      //if (!socketRef.current?.connected) return;
       emitCursorRef.current?.(e.position);
     });
   };
@@ -186,7 +188,7 @@ const LiveEditor = () => {
 
     console.log("decoration currentId ", decorationsRef.current);
   }
-  const handleCursorUpdate = (data) => {
+  const handleCursorUpdate = useCallback((data) => {
   const editor = editorRef.current;
 
   if (!editor) {
@@ -195,7 +197,7 @@ const LiveEditor = () => {
   }
 
   processCursor(data); 
-};
+},[activeFileId]);
 
 
   return (

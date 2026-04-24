@@ -146,7 +146,7 @@ const RoomProvider = ({ children }) => {
 
   //useffect for connection
   useEffect(() => {
-    socket.connect();
+    //socket.connect();
 
     const handleConnect = () => {
       socket.emit("join-room", {
@@ -217,11 +217,14 @@ const RoomProvider = ({ children }) => {
   //cursor details for all users in particular file
   const handleCursorUpdates = (data)=>{
     
-    console.log("updating data ",data);
-    if (cursorHandler) {
-      
-    cursorHandler(data);  // 🔥 forward to editor
-   }
+  console.log("cursor update received:", data);
+  console.log("cursorHandler exists?", !!cursorHandler);
+  if (cursorHandler) {
+    console.log("cursor handler exists");
+    cursorHandler(data);
+  } else {
+    console.log("cursor handler missing");
+  }
   }
 
 

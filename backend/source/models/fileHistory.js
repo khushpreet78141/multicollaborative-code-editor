@@ -16,10 +16,18 @@ const fileHistorySchema = new Schema({
         default:"",
         required:true
     },
-    text:{
-        type:String,
-        default:""
+    snapshotPath: {
+    type: String,
+    required: true,
+    trim: true
     },
+
+    snapshotType: {
+    type: String,
+    enum: ["manual", "auto-save", "checkpoint"],
+    default: "auto-save"
+    },
+    
     version:{
         type:Number,
         required:true
@@ -27,7 +35,9 @@ const fileHistorySchema = new Schema({
     editedBy:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
-    }
+    },
+   
+
  
     
 },{timestamps:true});

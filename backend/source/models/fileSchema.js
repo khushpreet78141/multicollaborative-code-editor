@@ -22,11 +22,7 @@ const fileSchema = new Schema({
         default:"file",
         required:true
     },
-    parent:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"File",
-        default:null
-    },
+    
 
     language:{
         type:String,
@@ -42,6 +38,16 @@ const fileSchema = new Schema({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+     filePath: {
+        type: String,
+        required: function () {
+            return this.type === "file";
+        }
+    },
+        lastModified: {
+        type: Date,
+        default: Date.now
     }
 
 },{timestamps:true});
