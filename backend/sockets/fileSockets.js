@@ -232,10 +232,14 @@ export default function fileSockets({ io, socket, roomUsers }) {
   socket.on("getting-folder-files",async({roomId,folderPath})=>{
     if(!roomId || !folderPath) return;
     if(!socket.rooms.has(roomId)) return;
+    const escapedPath = folderPath.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
     const files = await File.find({roomId,filePath:{
-      $regex:`^${folderPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`
+      $regex:`^${escapedPath}/[^/]+$`
     }});
-    socket.emit("load-folder-files",files);
+    socket.emit("load-folder-files",{folderPath,files});
 })
 
 

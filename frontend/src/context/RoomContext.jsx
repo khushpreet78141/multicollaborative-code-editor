@@ -22,8 +22,9 @@ const RoomProvider = ({ children }) => {
   const [currentUserId, setcurrentUserId] = useState(null)
   
   const [cursorHandler, setCursorHandler] = useState(null);
-  const [folderFiles,setFolderFiles] = useState([]);
-  //const cursorDataRef = useRef({});
+  
+  const [folderChildren, setFolderChildren] = useState({});
+ 
 
   
   useEffect(() => {
@@ -116,9 +117,8 @@ const RoomProvider = ({ children }) => {
     }
 
     const handleGetMessage = (messages) => {
-      console.log("all messages", messages);
-      //setothersMessage(messages)
-      setMessages(messages)
+     
+      setMessages(messages);
 
     }
 
@@ -132,7 +132,7 @@ const RoomProvider = ({ children }) => {
     //get all files belongs to that room
     const handleGetFiles = (files) =>{
       setFiles(files);
-      console.log("all files",files);    
+        
     }
 
   //cursor details for all users in particular file
@@ -148,14 +148,15 @@ const RoomProvider = ({ children }) => {
   }
   }
 
-  const handleLoadFolderFiles = (files)=>{
-    setFolderFiles(files)
+  const handleLoadFolderFiles = ({folderPath,files})=>{
+    setFolderChildren((prev)=>({...prev,[folderPath]:files}));
+    
   }
-
 
     const handleError =(msg)=>{
       showError(`${msg}`)
     }
+
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
@@ -165,7 +166,6 @@ const RoomProvider = ({ children }) => {
     socket.on("load-folder-files",handleLoadFolderFiles);
     socket.on("error",handleError);
 
-    
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
@@ -205,8 +205,8 @@ const RoomProvider = ({ children }) => {
         roomId,
         setCursorHandler,
         socket,
-        setFolderFiles,
-        folderFiles
+        folderChildren,
+        setFolderChildren
       }}
     >
       {children}

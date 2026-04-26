@@ -11,12 +11,14 @@ const FileTreeNode = ({
   roomId,
   selectedFolder,
   setSelectedFolder,
-  openFolderPath,
-  setOpenFolderPath,
-  folderFiles,
+  expandedFolders,
+  setExpandedFolders,
+  folderChildren,
   socket,
   setCreateFileOpen,
+  handleCreateFile
 }) => {
+
   // folder select
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
@@ -24,22 +26,21 @@ const FileTreeNode = ({
 
   // dropdown open/close + fetch children
   const handleDropDownFiles = (folderPath) => {
-    console.log("folder path",folderPath);
-    console.log("openFolderPath",openFolderPath);
+  const isExpanded = expandedFolders[folderPath];
 
-    if (openFolderPath === folderPath) {
-      setOpenFolderPath(null);
-    } else {
-      setOpenFolderPath(folderPath);
-      console.log("openFolderPath2",openFolderPath);
-      socket.emit("getting-folder-files", {
-        roomId,
-        folderPath,
-      });
-    }
-  };
+  setExpandedFolders((prev) => ({
+    ...prev,
+    [folderPath]: !isExpanded
+  }));
 
-  
+  if (!isExpanded && !folderChildren[folderPath]) {
+    socket.emit("getting-folder-files", {
+      roomId,
+      folderPath
+    });
+  }
+};
+
   return (
     <div className="ml-2">
       {/* Folder UI */}
@@ -70,30 +71,34 @@ const FileTreeNode = ({
             <span
               className="ml-2 cursor-pointer"
               onClick={(e) => {
-                e.stopPropagation();
+                setCreateFileOpen(true)
                 setSelectedFolder(item);
-                setCreateFileOpen(true);
+                handleCreateFile;
+                e.stopPropagation();
               }}
+
             >
               <FilePlusCorner size={18} />
             </span>
           </div>
 
           {/* Render children when expanded */}
-          {openFolderPath === item.filePath && (
+          {expandedFolders[item.filePath] && (
             <div className="ml-6 mt-2">
-              {folderFiles?.map((child) => (
-                <FileTreeNode
+              {console.log("here folder children",folderChildren)}
+              {folderChildren[item.filePath]?.map((child) => (
+                <FileTreeNode 
                   key={child._id}
                   item={child}
                   roomId={roomId}
                   selectedFolder={selectedFolder}
                   setSelectedFolder={setSelectedFolder}
-                  openFolderPath={openFolderPath}
-                  setOpenFolderPath={setOpenFolderPath}
-                  folderFiles={folderFiles}
+                  setExpandedFolders={setExpandedFolders}
+                  expandedFolders={expandedFolders}
+                  folderChildren={folderChildren}
                   socket={socket}
                   setCreateFileOpen={setCreateFileOpen}
+                  handleCreateFile={handleCreateFile}
                 />
               ))}
             </div>

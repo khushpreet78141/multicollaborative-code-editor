@@ -14,10 +14,10 @@ const LiveFileTab = () => {
   const [type, setType] = useState("file");
   const [createFileOpen, setCreateFileOpen] = useState(false)
   const [selectedFolder, setSelectedFolder] = useState(null);
-  const { setFolderFiles, folderFiles, socket } = useRoom();
-  const [openFolderPath, setOpenFolderPath] = useState(null);
+  const { folderChildren,setFolderChildren , socket } = useRoom();
+  //const [openFolderPath, setOpenFolderPath] = useState(null);
+  const [expandedFolders, setExpandedFolders] = useState({});
 
-  
   const relativePath = selectedFolder?.filePath
     ?.replace(`storage/${roomId}/`, "")
     ?.replace(/\\/g, "/") || "";
@@ -57,7 +57,7 @@ const LiveFileTab = () => {
           return (
             <div key={index} className={`text-white ${selectedFolder?._id === item._id && "bg-gray-400"}`}>
              
-                <FileTreeNode item={item} roomId={roomId} setOpenFolderPath={setOpenFolderPath} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} openFolderPath={openFolderPath} folderFiles={folderFiles} socket={socket} setCreateFileOpen={setCreateFileOpen}/>
+                <FileTreeNode item={item} roomId={roomId} setExpandedFolders={setExpandedFolders} selectedFolder={selectedFolder} setSelectedFolder={setSelectedFolder} expandedFolders={expandedFolders} folderChildren={folderChildren} socket={socket} setCreateFileOpen={setCreateFileOpen} handleCreateFile={handleCreateFile}/>
 
             </div>
           )
