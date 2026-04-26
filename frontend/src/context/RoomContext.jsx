@@ -16,96 +16,16 @@ const RoomProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [code, setCode] = useState("");
   const [activeFileId, setActiveFileId] = useState(null);
-  const [fileContent, setFileContent] = useState("")
+
   const [cursors, setCursors] = useState([])
   
   const [currentUserId, setcurrentUserId] = useState(null)
-  const [dir, setDir] = useState(null)
-  const [file_loading, setFileLoading] = useState(false)
-  const [hierarchy, setHierarchy] = useState(
-    {
-      name: "none",
-      type: 'file',
-      path: '/',
-      object: null,
-      child: {
-
-
-      }
-    }
-  );
+  
   const [cursorHandler, setCursorHandler] = useState(null);
+  const [folderFiles,setFolderFiles] = useState([]);
   //const cursorDataRef = useRef({});
 
-  async function selectAndEditFolder() {
-    try {
-      setFileLoading(true)
-      const dirHandle = await window.showDirectoryPicker();
-      console.log(`--- Reading hierarchy for: ${dirHandle.name} ---`);
-      setDir(dirHandle);
-      const folderHierarchy = {
-        name: dirHandle.name,
-        type: dirHandle.kind,
-        object: dirHandle,
-        path: '',
-        child: await readDirectory(dirHandle, "")
-      };
-      setHierarchy(folderHierarchy);
-      console.log("Hierarchy built:", folderHierarchy);
-      //  await readDirectory(dirHandle, "");
-    } catch (err) {
-      console.error('Error accessing files:', err);
-    } finally {
-      setFileLoading(false)
-    }
-  }
-
-  async function readDirectory(directoryHandle, currentPath) {
-    const children = [];
-    for await (const entry of directoryHandle.values()) {
-
-
-      const fullPath = currentPath ? `${currentPath}/${entry.name}` : entry.name;
-
-      if (entry.kind === 'file') {
-
-        console.log(` File: ${fullPath}`);
-        // return {
-        //   name: entry.name,
-        //   type: entry.kind,
-        //   path: fullPath,
-        //   object: entry,
-        //   child: {}
-        // }
-        children.push({
-          name: entry.name,
-          type: entry.kind,
-          path: fullPath,
-          object: entry,
-          child: {}
-        })
-
-
-        // const file = await entry.getFile();
-        // const writable = await entry.createWritable();
-        // await writable.write('New content');
-        // await writable.close();
-
-
-      } else if (entry.kind === 'directory') {
-        console.log(` Folder: ${fullPath}`);
-        
-        children.push({
-          name: entry.name,
-          type: entry.kind,
-          path: fullPath,
-          object: entry,
-          child: await readDirectory(entry, fullPath)
-        })
-      }
-    }
-    return children;
-  }
+  
   useEffect(() => {
     
     const token = localStorage.getItem("token");
@@ -133,7 +53,7 @@ const RoomProvider = ({ children }) => {
     roomId,
     setFiles,
     setActiveFileId,
-    setFileContent
+    
   });
 
   useRoomSocket({
@@ -194,6 +114,7 @@ const RoomProvider = ({ children }) => {
       console.log("sender msg",message);
       setMessages((prev) => [...prev, message]);
     }
+
     const handleGetMessage = (messages) => {
       console.log("all messages", messages);
       //setothersMessage(messages)
@@ -203,20 +124,20 @@ const RoomProvider = ({ children }) => {
 
     //file creation
     const handleCreatedFile = (file)=>{
-      console.log("file created :",file);
+      
       setActiveFileId(file._id);
+      showInfo("File Created Successfully")
     }
 
     //get all files belongs to that room
     const handleGetFiles = (files) =>{
       setFiles(files);
-      console.log("all files",files);
-      
+      console.log("all files",files);    
     }
 
   //cursor details for all users in particular file
   const handleCursorUpdates = (data)=>{
-    
+  
   console.log("cursor update received:", data);
   console.log("cursorHandler exists?", !!cursorHandler);
   if (cursorHandler) {
@@ -225,6 +146,10 @@ const RoomProvider = ({ children }) => {
   } else {
     console.log("cursor handler missing");
   }
+  }
+
+  const handleLoadFolderFiles = (files)=>{
+    setFolderFiles(files)
   }
 
 
@@ -237,7 +162,9 @@ const RoomProvider = ({ children }) => {
     socket.on("file-created",handleCreatedFile);
     socket.on("files-list",handleGetFiles);
     socket.on("cursor-update",handleCursorUpdates);
+    socket.on("load-folder-files",handleLoadFolderFiles);
     socket.on("error",handleError);
+
     
     return () => {
       socket.off("file-init", handleFileInit);
@@ -246,6 +173,7 @@ const RoomProvider = ({ children }) => {
       socket.off("file-created",handleCreatedFile);
       socket.off("files-list",handleGetFiles);
       socket.off("cursor-update",handleCursorUpdates);
+      socket.off("load-folder-files",handleLoadFolderFiles);
       socket.off("error",handleError);
     };
 
@@ -271,16 +199,14 @@ const RoomProvider = ({ children }) => {
         sendMessage,
         code,
         setCode,
-        fileContent,
-        setFileContent,
-        
         setcurrentUserId,
         cursors,
-        currentUserId, selectAndEditFolder, hierarchy,
-        dir, file_loading,
+        currentUserId, 
         roomId,
         setCursorHandler,
-        socket
+        socket,
+        setFolderFiles,
+        folderFiles
       }}
     >
       {children}

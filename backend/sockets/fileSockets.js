@@ -9,13 +9,16 @@ import { type } from "os";
 
 export default function fileSockets({ io, socket, roomUsers }) {
 
-  //getting all files
+  //getting all files that are in main folder
   socket.on("get-files", async ({ roomId }) => {
     if (!roomId) return;
 
     if (!socket.rooms.has(roomId)) return;
 
-    let files = await File.find({ roomId });
+    let files = await File.find({ roomId,filePath:{
+      $regex:`^storage/${roomId}/[^/]+$`
+    } });
+
 
     if (files.length === 0) {
         const roomFolder = path.join("storage", roomId);
@@ -23,31 +26,27 @@ export default function fileSockets({ io, socket, roomUsers }) {
         if (!fs.existsSync(roomFolder)) {
             fs.mkdirSync(roomFolder, { recursive: true });
         }
-
         const defaultFilePath = path.join(roomFolder, "main.js");
-
         if (!fs.existsSync(defaultFilePath)) {
             fs.writeFileSync(
                 defaultFilePath,
                 "// start coding..."
             );
         }
-
         const defaultFile = await File.create({
             fileName: "main.js",
             roomId,
             type: "file",
             filePath: defaultFilePath,
-            createdBy: socket.user.userId
+            createdBy: socket.user?.id
         });
 
         files = [defaultFile];
-
         io.to(roomId).emit("file-created", defaultFile);
     }
-
     socket.emit("files-list", files);
 });
+
 
   //socket for opening file
   socket.on("open-file", async ({ roomId, fileId }) => {
@@ -128,33 +127,45 @@ export default function fileSockets({ io, socket, roomUsers }) {
     }
 
     const roomFolder = path.join("storage", roomId);
-    const targetFolder = path.join(roomFolder, relativePath || "");
+    const safeRelativePath = relativePath || "";
+
+  const fullPath = path.join(
+    roomFolder,
+    safeRelativePath,
+    name
+  );
 
 
-    if (!fs.existsSync(targetFolder)) {
-      fs.mkdirSync(targetFolder, { recursive: true });
-    }
+    //if (!fs.existsSync(fullPath)) {
+    //  fs.mkdirSync(fullPath, { recursive: true });
+    //}
 
-    const fullPath = path.join(targetFolder, name);
+    //const fullPath = path.join(targetFolder, name);
 
     if (type === "folder") {
       if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, { recursive: true });
       }
     } else {
+      const parentDir = path.dirname(fullPath);
+      if (!fs.existsSync(parentDir)) {
+      fs.mkdirSync(parentDir, { recursive: true });
+    }
       if (!fs.existsSync(fullPath)) {
         fs.writeFileSync(fullPath, "// start coding...");
       }}
+      
+      const normalizedPath = fullPath.replace(/\\/g, "/");
 
       const file = await File.create({
         roomId,
         fileName: name,
         type: type || "file",
-        filePath: fullPath,
+        filePath: normalizedPath,
         createdBy: socket.user.id
       });
 
-      console.log(file);
+    
       io.to(roomId).emit("file-created", file);
     });
 
@@ -217,7 +228,20 @@ export default function fileSockets({ io, socket, roomUsers }) {
     io.to(roomId).emit("file-deleted", { fileId });
   });
 
+  //getting files of folder 
+  socket.on("getting-folder-files",async({roomId,folderPath})=>{
+    if(!roomId || !folderPath) return;
+    if(!socket.rooms.has(roomId)) return;
+    const files = await File.find({roomId,filePath:{
+      $regex:`^${folderPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`
+    }});
+    socket.emit("load-folder-files",files);
+})
+
+
 }
+
+
 
 
 
