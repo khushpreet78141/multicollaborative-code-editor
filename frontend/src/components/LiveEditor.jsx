@@ -68,7 +68,7 @@ const LiveEditor = () => {
     setLanguage(e.target.value);
   };
 
-  const [code, setCode] = useState(" // start coding ....");
+  //const [code, setCode] = useState(" // start coding ....");
   const handleChange = (value) => {
     if (isRemoteChange.current) {
       isRemoteChange.current = false;
@@ -77,8 +77,9 @@ const LiveEditor = () => {
     }
     isRemoteChange.current = true;
     setFileContent(value);
-    setCode(value);
+    //setCode(value);
     if (!socketRef.current) return;
+
     socketRef.current.emit("code-change", {
       roomId,
       fileId: activeFileId,
@@ -224,7 +225,7 @@ const LiveEditor = () => {
         width="100%"
         theme="vs-dark"
         language={language}
-        value={code}
+        value={fileContent}
         onChange={handleChange}
         onMount={handleEditorDidMount}
       />

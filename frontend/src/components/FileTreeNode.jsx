@@ -3,26 +3,41 @@ import {
   Folder,
   File,
   ChevronDown,
+  ChevronRight,
   FilePlusCorner,
 } from "lucide-react";
+import { useRoom } from "../context/RoomContext";
 
 const FileTreeNode = ({
   item,
   roomId,
-  selectedFolder,
-  setSelectedFolder,
-  expandedFolders,
-  setExpandedFolders,
   folderChildren,
   socket,
   setCreateFileOpen,
-  handleCreateFile
+
 }) => {
+
+  const {selectedFolder,setSelectedFolder,activeFileId,setActiveFileId,expandedFolders,setExpandedFolders} = useRoom();
 
   // folder select
   const handleFolderClick = (folder) => {
-    setSelectedFolder(folder);
+    if(selectedFolder === folder){
+      setSelectedFolder(null);
+    }else{
+       setSelectedFolder(folder);
+    }
+   
   };
+
+  const handleActiveFile = (fileId)=>{
+    if(activeFileId===fileId){
+      setActiveFileId(null)
+    }
+    else{
+      setActiveFileId(fileId)
+    }
+    
+  }
 
   // dropdown open/close + fetch children
   const handleDropDownFiles = (folderPath) => {
@@ -46,37 +61,36 @@ const FileTreeNode = ({
       {/* Folder UI */}
       {item.type === "folder" && (
         <div
-          className={`text-white ${
-            selectedFolder?._id === item._id ? "bg-gray-400" : ""
+          className={`text-white p-1 ${
+            selectedFolder?._id === item._id ? "bg-white/10 rounded-lg" : ""
           }`}
-          onClick={() => handleFolderClick(item)}
+          onClick={(e) => {e.stopPropagation();handleFolderClick(item)}}
         >
-          <div className="flex items-center gap-2 text-xl">
-            <Folder size={22} />
-
-            <span>{item.fileName}</span>
-
-            {/* dropdown */}
+          
+          <div className="flex items-center gap-2 text-[16px] font-bold">
             <span
-              className="ml-4 cursor-pointer"
+              className="ml-2 cursor-pointer  border-r "
               onClick={(e) => {
                 e.stopPropagation();
                 handleDropDownFiles(item.filePath);
               }}
             >
-              <ChevronDown size={18} />
+             {expandedFolders[item.filePath] ?<ChevronDown size={19}/> :<ChevronRight size={19}/>}
             </span>
+            <Folder size={22} className="ml-1"/>
 
+            <span>{item.fileName}</span>
+
+            {/* dropdown */}
+            
             {/* create file inside this folder */}
             <span
               className="ml-2 cursor-pointer"
               onClick={(e) => {
+                e.stopPropagation();
                 setCreateFileOpen(true)
                 setSelectedFolder(item);
-                handleCreateFile;
-                e.stopPropagation();
               }}
-
             >
               <FilePlusCorner size={18} />
             </span>
@@ -85,20 +99,15 @@ const FileTreeNode = ({
           {/* Render children when expanded */}
           {expandedFolders[item.filePath] && (
             <div className="ml-6 mt-2">
-              {console.log("here folder children",folderChildren)}
+            
               {folderChildren[item.filePath]?.map((child) => (
                 <FileTreeNode 
                   key={child._id}
                   item={child}
                   roomId={roomId}
-                  selectedFolder={selectedFolder}
-                  setSelectedFolder={setSelectedFolder}
-                  setExpandedFolders={setExpandedFolders}
-                  expandedFolders={expandedFolders}
                   folderChildren={folderChildren}
                   socket={socket}
                   setCreateFileOpen={setCreateFileOpen}
-                  handleCreateFile={handleCreateFile}
                 />
               ))}
             </div>
@@ -108,9 +117,10 @@ const FileTreeNode = ({
 
       {/* File UI */}
       {item.type === "file" && (
-        <div className="text-white flex items-center gap-2 ml-2">
+        <div className={`text-white flex items-center gap-2 ml-2 p-1 ${item._id===activeFileId && "bg-white/10 rounded-lg"}`} onClick={()=>handleActiveFile(item._id)}>
           <File size={18} />
           <span>{item.fileName}</span>
+          <span></span>
         </div>
       )}
     </div>

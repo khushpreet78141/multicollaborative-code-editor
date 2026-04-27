@@ -49,12 +49,12 @@ export default function fileSockets({ io, socket, roomUsers }) {
 
 
   //socket for opening file
-  socket.on("open-file", async ({ roomId, fileId }) => {
-    if (!roomId || !fileId) return;
+  socket.on("open-file", async ({ roomId, activeFileId }) => {
+    if (!roomId || !activeFileId) return;
 
     if (!socket.rooms.has(roomId)) return;
 
-    const fileDoc = await File.findById(fileId);
+    const fileDoc = await File.findById(activeFileId);
 
     if (!fileDoc) {
         return socket.emit("error", "File not found");
@@ -62,7 +62,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
 
     if (fileDoc.type === "folder") return;
 
-    const redisKey = `file:${fileId}`;
+    const redisKey = `file:${activeFileId}`;
 
     let content = await redisClient.get(redisKey);
 
@@ -72,15 +72,13 @@ export default function fileSockets({ io, socket, roomUsers }) {
         }else {
             content = "";
         }
-
         await redisClient.set(redisKey, content);
         console.log("Loaded from disk → stored in Redis");
     } else {
         console.log("Loaded from Redis");
     }
-
     socket.emit("load-file", {
-        fileId,
+        activeFileId,
         content
     });
 });
@@ -125,6 +123,10 @@ export default function fileSockets({ io, socket, roomUsers }) {
     if (role !== "owner" && role !== "editor") {
       return socket.emit("error", "Permission denied for creation of File !");
     }
+    const alreadyExist = await File.findOne({fileName:name});
+    if(alreadyExist){
+      return socket.emit("error","FileName already Exist!")
+    };
 
     const roomFolder = path.join("storage", roomId);
     const safeRelativePath = relativePath || "";
@@ -134,13 +136,6 @@ export default function fileSockets({ io, socket, roomUsers }) {
     safeRelativePath,
     name
   );
-
-
-    //if (!fs.existsSync(fullPath)) {
-    //  fs.mkdirSync(fullPath, { recursive: true });
-    //}
-
-    //const fullPath = path.join(targetFolder, name);
 
     if (type === "folder") {
       if (!fs.existsSync(fullPath)) {
@@ -165,7 +160,6 @@ export default function fileSockets({ io, socket, roomUsers }) {
         createdBy: socket.user.id
       });
 
-    
       io.to(roomId).emit("file-created", file);
     });
 

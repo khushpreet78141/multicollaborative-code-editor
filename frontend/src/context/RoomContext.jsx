@@ -3,7 +3,7 @@ import socket from "../utils/socket";
 import { useParams } from "react-router-dom";
 import { showError, showInfo } from "../utils/Toast";
 import { useEffect } from "react";
-import useFileSocket from '../hooks/useFileSocket.js'
+
 import useRoomSocket from '../hooks/useRoomSocket.js'
 import { jwtDecode } from "jwt-decode";
 const RoomContext = createContext();
@@ -14,48 +14,50 @@ const RoomProvider = ({ children }) => {
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
   const [messages, setMessages] = useState([]);
-  const [code, setCode] = useState("");
+  
   const [activeFileId, setActiveFileId] = useState(null);
 
   const [cursors, setCursors] = useState([])
-  
-  const [currentUserId, setcurrentUserId] = useState(null)
-  
-  const [cursorHandler, setCursorHandler] = useState(null);
-  
-  const [folderChildren, setFolderChildren] = useState({});
- 
 
-  
+  const [currentUserId, setcurrentUserId] = useState(null)
+
+  const [cursorHandler, setCursorHandler] = useState(null);
+
+  const [folderChildren, setFolderChildren] = useState({});
+  const [selectedFolder, setSelectedFolder] = useState(null);
+   const [expandedFolders, setExpandedFolders] = useState({});
+
+  const [fileContent, setFileContent] = useState("// start coding");
+
   useEffect(() => {
-    
+
     const token = localStorage.getItem("token");
 
-    if(!token) return;
-     socket.auth = { token }; // update auth dynamically
-  socket.connect();
-  try{
-    const decoded = jwtDecode(token);
-    
-    setcurrentUserId(decoded.userId);
-    
-  }catch(err){
-    console.error("Token error:",err)
-  }
-  
+    if (!token) return;
+    socket.auth = { token }; // update auth dynamically
+    socket.connect();
+    try {
+      const decoded = jwtDecode(token);
+
+      setcurrentUserId(decoded.userId);
+
+    } catch (err) {
+      console.error("Token error:", err)
+    }
+
     return () => {
       socket.disconnect();
     }
   }, []);
 
 
-  //attaching socket logic 
-  useFileSocket({
-    roomId,
-    setFiles,
-    setActiveFileId,
-    
-  });
+  ////attaching socket logic 
+  //useFileSocket({
+  //  roomId,
+  //  setFiles,
+  //  setActiveFileId,
+
+  //});
 
   useRoomSocket({
     roomId,
@@ -67,7 +69,7 @@ const RoomProvider = ({ children }) => {
 
   //useffect for connection
   useEffect(() => {
-    //socket.connect();
+    
 
     const handleConnect = () => {
       socket.emit("join-room", {
@@ -77,7 +79,7 @@ const RoomProvider = ({ children }) => {
       socket.emit("get-messages", {
         roomId
       })
-      socket.emit("get-files",{
+      socket.emit("get-files", {
         roomId
       })
     };
@@ -86,9 +88,9 @@ const RoomProvider = ({ children }) => {
 
     return () => {
       socket.off("connect", handleConnect);
-      socket.disconnect();
+      
     };
-  }, [roomId, activeFileId]);
+  }, [roomId]);
 
 
   //handling activefiles changes
@@ -102,79 +104,103 @@ const RoomProvider = ({ children }) => {
   }, [activeFileId]);
 
 
-//For listening events
+  //For listening events
 
   useEffect(() => {
     //file initializing
     const handleFileInit = ({ fileId, code }) => {
       setActiveFileId(fileId);
-      setCode(code);
+      setFileContent(code)
     };
 
-    const handleMessage = (message) => {  
-      console.log("sender msg",message);
+    const handleMessage = (message) => {
+      console.log("sender msg", message);
       setMessages((prev) => [...prev, message]);
     }
 
     const handleGetMessage = (messages) => {
-     
+
       setMessages(messages);
 
     }
 
+
     //file creation
-    const handleCreatedFile = (file)=>{
+    const handleCreatedFile = (file) => {
+      socket.emit("get-files", {
+      roomId
+      });
+
+      if (selectedFolder) {
+        socket.emit("getting-folder-files", {
+          roomId,
+          folderPath: selectedFolder.filePath
+        });
+      }
       
       setActiveFileId(file._id);
-      showInfo("File Created Successfully")
+      setSelectedFolder(null);
+      showInfo("File Created Successfully");    
     }
 
     //get all files belongs to that room
-    const handleGetFiles = (files) =>{
+    const handleGetFiles = (files) => {
       setFiles(files);
-        
+
     }
 
-  //cursor details for all users in particular file
-  const handleCursorUpdates = (data)=>{
-  
-  console.log("cursor update received:", data);
-  console.log("cursorHandler exists?", !!cursorHandler);
-  if (cursorHandler) {
-    console.log("cursor handler exists");
-    cursorHandler(data);
-  } else {
-    console.log("cursor handler missing");
-  }
-  }
+    //cursor details for all users in particular file
+    const handleCursorUpdates = (data) => {
 
-  const handleLoadFolderFiles = ({folderPath,files})=>{
-    setFolderChildren((prev)=>({...prev,[folderPath]:files}));
+      console.log("cursor update received:", data);
+      console.log("cursorHandler exists?", !!cursorHandler);
+      if (cursorHandler) {
+        console.log("cursor handler exists");
+        cursorHandler(data);
+      }else {
+        console.log("cursor handler missing");
+      }
+    }
+
+    const handleLoadFolderFiles = ({ folderPath, files }) => {
+      setFolderChildren((prev) => ({ ...prev, [folderPath]: files }));
+
+    }
+
+    const handleLoadFile = ({activeFileId,content})=>{
+      setActiveFileId(activeFileId);
+      setFileContent(content);
+      console.log("file id",activeFileId);
+      console.log("content",content);
+
+    }
     
-  }
 
-    const handleError =(msg)=>{
+    const handleError = (msg) => {
       showError(`${msg}`)
     }
 
     socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
-    socket.on("file-created",handleCreatedFile);
-    socket.on("files-list",handleGetFiles);
-    socket.on("cursor-update",handleCursorUpdates);
-    socket.on("load-folder-files",handleLoadFolderFiles);
-    socket.on("error",handleError);
+    socket.on("file-created", handleCreatedFile);
+    socket.on("files-list", handleGetFiles);
+    socket.on("cursor-update", handleCursorUpdates);
+    socket.on("load-folder-files", handleLoadFolderFiles);
+    socket.on("load-file",handleLoadFile);
+    socket.on("error", handleError);
+  
 
     return () => {
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
-      socket.off("file-created",handleCreatedFile);
-      socket.off("files-list",handleGetFiles);
-      socket.off("cursor-update",handleCursorUpdates);
-      socket.off("load-folder-files",handleLoadFolderFiles);
-      socket.off("error",handleError);
+      socket.off("file-created", handleCreatedFile);
+      socket.off("files-list", handleGetFiles);
+      socket.off("cursor-update", handleCursorUpdates);
+      socket.off("load-folder-files", handleLoadFolderFiles);
+      socket.off("load-file",handleLoadFile);
+      socket.off("error", handleError);
     };
 
   }, []);
@@ -185,6 +211,7 @@ const RoomProvider = ({ children }) => {
       msg
     })
   }
+  
   return (
     <RoomContext.Provider
       value={{
@@ -197,16 +224,20 @@ const RoomProvider = ({ children }) => {
         messages,
         setMessages,
         sendMessage,
-        code,
-        setCode,
+        setFileContent,
+        fileContent,
         setcurrentUserId,
         cursors,
-        currentUserId, 
+        currentUserId,
         roomId,
         setCursorHandler,
         socket,
         folderChildren,
-        setFolderChildren
+        setFolderChildren,
+        selectedFolder,
+        setSelectedFolder,
+        expandedFolders,
+        setExpandedFolders,
       }}
     >
       {children}
@@ -215,6 +246,7 @@ const RoomProvider = ({ children }) => {
 };
 export default RoomProvider;
 
+
 // custom hook
 export const useRoom = () => {
   const context = useContext(RoomContext);
@@ -222,6 +254,15 @@ export const useRoom = () => {
     throw new Error("useRoom must be used within a RoomProvider");
   }
   return context;
+  
 };
+
+
+
+
+
+
+
+
 
 

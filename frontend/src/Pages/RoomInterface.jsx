@@ -20,7 +20,8 @@ const RoomInterface = () => {
   const { cursors, position, currentUserId } = useRoom();
   const [sideBarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
-  const [tab, setTab] = useState("members")
+  const [tab, setTab] = useState("members");
+ 
 
   return (
     <>
