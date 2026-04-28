@@ -2,21 +2,26 @@ import React, { useRef, useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { useRoom } from '../context/RoomContext';
 import throttle from "lodash.throttle";
-import { positionalKeys } from 'framer-motion';
+
 import { useCallback } from 'react';
 
 const LiveEditor = () => {
   const editorRef = useRef(null);
   // Default to php as in your previous code
   const [language, setLanguage] = useState('php');
-  const isRemoteChange = useRef(false);
-  const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler } = useRoom()
+  
+  const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler ,setActiveFileId,isRemoteChangeRef} = useRoom()
   const decorationsRef = useRef({});
   const emitCursorRef = useRef(null);
   const socketRef = useRef(null);
   const monacoRef = useRef(null);
   const pendingCursorEvents = useRef([]);
 
+  const currentFileRef = useRef(activeFileId);
+
+  useEffect(() => {
+    currentFileRef.current = activeFileId;
+  }, [activeFileId]);
 
   useEffect(() => {
     socketRef.current = socket;
@@ -56,37 +61,35 @@ const LiveEditor = () => {
         position,
         fileId: activeFileId
       })
-    }, 120)
+    }, 120);
 
     return () => {
-      emitCursorRef.current?.cancel()
+      emitCursorRef.current?.cancel();
     }
-  }, [socket, roomId, activeFileId])
+  }, [socket, roomId, activeFileId,]);
+
+  useEffect(() => {
+  if (!socket) return;
+  if (!roomId) return;
+  if (!activeFileId) return;
+
+  socket.emit("open-file", {
+    roomId,
+    activeFileId
+  });
+
+}, [socket, roomId, activeFileId]);
 
 
   const handleLanguageChange = (e) => {
     setLanguage(e.target.value);
   };
 
-  //const [code, setCode] = useState(" // start coding ....");
-  const handleChange = (value) => {
-    if (isRemoteChange.current) {
-      isRemoteChange.current = false;
-      return;
+ const handleChange = (value) => {
+   if (typeof value !== "string") return;
 
-    }
-    isRemoteChange.current = true;
-    setFileContent(value);
-    //setCode(value);
-    if (!socketRef.current) return;
-
-    socketRef.current.emit("code-change", {
-      roomId,
-      fileId: activeFileId,
-      code: value
-    });
+  setFileContent(value);
   };
-
 
   const cursorColors = [
     "#FF6B6B", // red
@@ -127,6 +130,8 @@ const LiveEditor = () => {
       return;
     }
     if (
+       !monacoRef.current ||
+  !monacoRef.current.Range ||
       !position ||
       typeof position.lineNumber !== "number" ||
       typeof position.column !== "number"
@@ -175,12 +180,12 @@ const LiveEditor = () => {
         ),
         options: {
           className: `remote-cursor-${userId}`,
-          afterContentClassName: `remote-label-${userId}`
+          //afterContentClassName: `remote-label-${userId}`
         }
       }
     ];
 
-    console.log("decorations ", decoration)
+    console.log("decorations", decoration)
     decorationsRef.current[userId] =
       editor.deltaDecorations(
         decorationsRef.current[userId] || [],
@@ -200,6 +205,26 @@ const LiveEditor = () => {
   processCursor(data); 
 },[activeFileId]);
 
+
+
+  useEffect(() => {
+   if (!socket || !roomId) return;
+  if (!currentFileRef.current) return;
+  if (isRemoteChangeRef.current) {
+    isRemoteChangeRef.current = false;
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent || ""});
+  }, 2000);
+
+  return () => {
+   clearTimeout(timer);
+ }
+  
+  }, [fileContent]);
+  
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -225,7 +250,7 @@ const LiveEditor = () => {
         width="100%"
         theme="vs-dark"
         language={language}
-        value={fileContent}
+        value={ fileContent || ""}
         onChange={handleChange}
         onMount={handleEditorDidMount}
       />

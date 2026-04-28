@@ -5,6 +5,8 @@ import {
   ChevronDown,
   ChevronRight,
   FilePlusCorner,
+  Trash,
+  FilePen
 } from "lucide-react";
 import { useRoom } from "../context/RoomContext";
 
@@ -55,6 +57,14 @@ const FileTreeNode = ({
     });
   }
 };
+
+    const handleDelete = (fileId)=>{
+      socket.emit("delete-file",{roomId,fileId});
+
+    }
+    const handleRename = (fileId)=>{
+      
+    }
 
   return (
     <div className="ml-2">
@@ -117,10 +127,12 @@ const FileTreeNode = ({
 
       {/* File UI */}
       {item.type === "file" && (
-        <div className={`text-white flex items-center gap-2 ml-2 p-1 ${item._id===activeFileId && "bg-white/10 rounded-lg"}`} onClick={()=>handleActiveFile(item._id)}>
-          <File size={18} />
-          <span>{item.fileName}</span>
-          <span></span>
+        <div className={`text-white flex items-center justify-between gap-2 ml-2 p-1 ${item._id===activeFileId && "bg-white/10 rounded-lg"}`} onClick={()=>handleActiveFile(item._id)}>
+          <span className="flex items-center gap-2"> <File size={18} /> {item.fileName}</span>
+          <div className={`${activeFileId === item._id ? "flex gap-2 items-center" :"hidden"}`}>
+          <button onClick={()=>handleDelete(item._id)} className="cursor-pointer"><Trash size={15}/></button>
+          <button onClick={()=>handleRename(item._id)} className="cursor-pointer"><FilePen size={15}/></button>
+          </div>
         </div>
       )}
     </div>

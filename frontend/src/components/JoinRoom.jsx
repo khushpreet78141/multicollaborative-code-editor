@@ -54,21 +54,7 @@ const JoinRoom = () => {
     
   };
 
-  //const handleClick = async(Code)=>{
-  //  try{
-  //    const res = await axiosClient.post("/room/addMember",{
-  //      inviteCode:Code
-  //    })
-  //    showSuccess("Joined room successfully ");
-
-  //  }catch(err){
-  //    console.error(err);
-  //    showError(err.response?.data?.message || "Something went wrong")
-  //  }
   
-  //}
-
-
   useEffect(() => {
     const getRooms = async () => {
       try {
@@ -82,7 +68,7 @@ const JoinRoom = () => {
 
     getRooms();
   }, []);
-  //console.log(publicRooms);
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex flex-col items-center p-6">

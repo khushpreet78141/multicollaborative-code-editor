@@ -1,29 +1,31 @@
-import RoomMember from "../source/models/roomMemberSchema.js";
+
 import activeFiles from "../source/stores/activeFileStore.js";
 import scheduleSave from "../source/utils/debouncedSave.js";
+import redisClient from "../source/utils/redisClient.js";
+import File from "../source/models/fileSchema.js";
 export default function registerCodeChangeEvents({socket,io,roomUsers}){
-    socket.on("code-change",({roomId,fileId,code})=>{
+    socket.on("code-change",async({roomId,fileId,code})=>{
         if(!roomId || !fileId || typeof code !== 'string') return;
 
-        if(!activeFiles.has(fileId)) return;
-         // Ensure socket actually belongs to file room
+      
+        // Ensure socket actually belongs to file room
+        
         if (!socket.rooms.has(roomId)) return;
-       
-
         const role = socket.data.roles?.[roomId]
-        if (role !== "owner" && role !== "editor") return;
 
-        //update activeFiles
-        const fileState = activeFiles.get(fileId);
+        if (role !== "owner" && role !== "editor"){
+            return socket.emit("error","Permission Denied !")
+        };
 
-        if(fileState){
-            fileState.content = code
-            fileState.changed = true
-            fileState.lastEditedBy = socket.user.id
-            scheduleSave(fileId)
-
-        }
+        const file = await File.findById(fileId);
+        if(!file) return;
+       
+        const rediskey = `file:${fileId}`    
+        await redisClient.set(rediskey,code);
+        scheduleSave(fileId,file.filePath);
         socket.to(roomId).emit("code-update",{fileId,code});
-    })
+
+    });
+    
 }
 

@@ -1,5 +1,6 @@
 import activeFiles from "../source/stores/activeFileStore.js";
 import RoomMember from "../source/models/roomMemberSchema.js";
+import redisClient from "../source/utils/redisClient.js";
 
 export default function registerRoomEvents(io,socket,roomUsers){
     //join room
@@ -42,19 +43,17 @@ export default function registerRoomEvents(io,socket,roomUsers){
                 socketId:socket.id,
                 userId:socket.user.id,
                 username:socket.user?.name,
-                activeFileId:null
+                //activeFileId:null
             })
         }
         
         socket.data.joinedRooms.add(roomId);
 
-//    socket.emit("code-update", {
-//    code: room.code
-//});
 
+        //const rediskey = `file:${fileId}`;
         socket.emit("file-init",{
             fileId,
-            code:activeFiles.get(fileId)?.content || ""
+            code:  ""
         })
         //send updated users list to everyone in room
 

@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 import socket from "../utils/socket";
 import { useParams } from "react-router-dom";
 import { showError, showInfo } from "../utils/Toast";
-import { useEffect } from "react";
+import { useEffect,useRef } from "react";
 
 import useRoomSocket from '../hooks/useRoomSocket.js'
 import { jwtDecode } from "jwt-decode";
@@ -14,7 +14,7 @@ const RoomProvider = ({ children }) => {
   const [members, setMembers] = useState([]);
   const [files, setFiles] = useState([]);
   const [messages, setMessages] = useState([]);
-  
+  const isRemoteChangeRef = useRef(false);
   const [activeFileId, setActiveFileId] = useState(null);
 
   const [cursors, setCursors] = useState([])
@@ -27,7 +27,7 @@ const RoomProvider = ({ children }) => {
   const [selectedFolder, setSelectedFolder] = useState(null);
    const [expandedFolders, setExpandedFolders] = useState({});
 
-  const [fileContent, setFileContent] = useState("// start coding");
+  const [fileContent, setFileContent] = useState("");
 
   useEffect(() => {
 
@@ -50,14 +50,6 @@ const RoomProvider = ({ children }) => {
     }
   }, []);
 
-
-  ////attaching socket logic 
-  //useFileSocket({
-  //  roomId,
-  //  setFiles,
-  //  setActiveFileId,
-
-  //});
 
   useRoomSocket({
     roomId,
@@ -114,7 +106,7 @@ const RoomProvider = ({ children }) => {
     };
 
     const handleMessage = (message) => {
-      console.log("sender msg", message);
+      
       setMessages((prev) => [...prev, message]);
     }
 
@@ -154,6 +146,7 @@ const RoomProvider = ({ children }) => {
 
       console.log("cursor update received:", data);
       console.log("cursorHandler exists?", !!cursorHandler);
+      //isRemoteChangeRef.current = true
       if (cursorHandler) {
         console.log("cursor handler exists");
         cursorHandler(data);
@@ -168,16 +161,23 @@ const RoomProvider = ({ children }) => {
     }
 
     const handleLoadFile = ({activeFileId,content})=>{
-      setActiveFileId(activeFileId);
-      setFileContent(content);
+
+      isRemoteChangeRef.current = true;
+       setFileContent(content || ""); 
       console.log("file id",activeFileId);
       console.log("content",content);
-
     }
-    
+
+    const handleDeletedFile = (fileId)=>{
+        socket.emit("get-files",{roomId});
+         if (activeFileId === fileId) {
+        setActiveFileId(null);
+        setFileContent("");
+     }
+    }
 
     const handleError = (msg) => {
-      showError(`${msg}`)
+      showError(`${msg}`);
     }
 
     socket.on("file-init", handleFileInit);
@@ -188,6 +188,7 @@ const RoomProvider = ({ children }) => {
     socket.on("cursor-update", handleCursorUpdates);
     socket.on("load-folder-files", handleLoadFolderFiles);
     socket.on("load-file",handleLoadFile);
+    socket.on("file-deleted",handleDeletedFile);
     socket.on("error", handleError);
   
 
@@ -200,6 +201,7 @@ const RoomProvider = ({ children }) => {
       socket.off("cursor-update", handleCursorUpdates);
       socket.off("load-folder-files", handleLoadFolderFiles);
       socket.off("load-file",handleLoadFile);
+      socket.off("deleted-file",handleDeletedFile);
       socket.off("error", handleError);
     };
 
@@ -238,6 +240,7 @@ const RoomProvider = ({ children }) => {
         setSelectedFolder,
         expandedFolders,
         setExpandedFolders,
+        isRemoteChangeRef
       }}
     >
       {children}

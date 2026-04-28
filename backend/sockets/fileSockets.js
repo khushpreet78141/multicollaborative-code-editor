@@ -51,19 +51,13 @@ export default function fileSockets({ io, socket, roomUsers }) {
   //socket for opening file
   socket.on("open-file", async ({ roomId, activeFileId }) => {
     if (!roomId || !activeFileId) return;
-
     if (!socket.rooms.has(roomId)) return;
-
     const fileDoc = await File.findById(activeFileId);
-
     if (!fileDoc) {
         return socket.emit("error", "File not found");
     }
-
     if (fileDoc.type === "folder") return;
-
     const redisKey = `file:${activeFileId}`;
-
     let content = await redisClient.get(redisKey);
 
     if (content === null) {
@@ -89,7 +83,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
     if (!roomId || !fileId) return;
 
     if (!socket.rooms.has(roomId)) return;
-    //const fileState = activeFiles.get(fileId);
+    
     const redisKey = `file:${fileId}`
     const fileState = await redisClient.get(redisKey)
     if (!fileState){
@@ -104,8 +98,9 @@ export default function fileSockets({ io, socket, roomUsers }) {
 
     if(file.type !== "file") return;
     fs.writeFileSync(file.filePath,fileState);
-    file.lastModified = new Date()
+    file.lastModified = new Date();
     await file.save();
+    
     socket.emit("file-saved", {
         fileId,
         message: "File saved successfully"
@@ -123,7 +118,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
     if (role !== "owner" && role !== "editor") {
       return socket.emit("error", "Permission denied for creation of File !");
     }
-    const alreadyExist = await File.findOne({fileName:name});
+    const alreadyExist = await File.findOne({ roomId,fileName: name});
     if(alreadyExist){
       return socket.emit("error","FileName already Exist!")
     };
@@ -147,9 +142,9 @@ export default function fileSockets({ io, socket, roomUsers }) {
       fs.mkdirSync(parentDir, { recursive: true });
     }
       if (!fs.existsSync(fullPath)) {
-        fs.writeFileSync(fullPath, "// start coding...");
+        fs.writeFileSync(fullPath, "");
       }}
-      
+
       const normalizedPath = fullPath.replace(/\\/g, "/");
 
       const file = await File.create({
@@ -197,7 +192,6 @@ export default function fileSockets({ io, socket, roomUsers }) {
       return socket.emit("error", "Permission denied for Deletion of File !");
     }
 
-   
       const file = await File.findByIdAndDelete(fileId);
       if(!file){
         return socket.emit("error","File Not found!");
@@ -211,13 +205,10 @@ export default function fileSockets({ io, socket, roomUsers }) {
         fs.unlinkSync(file.filePath);
       }
       }
-      
-
       //remove from memory cache
-     
+
       const redisKey = `file:${fileId}`
       await redisClient.del(redisKey);
-
 
     io.to(roomId).emit("file-deleted", { fileId });
   });
@@ -235,7 +226,6 @@ export default function fileSockets({ io, socket, roomUsers }) {
     }});
     socket.emit("load-folder-files",{folderPath,files});
 })
-
 
 }
 
