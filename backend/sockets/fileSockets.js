@@ -196,6 +196,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
       if(!file){
         return socket.emit("error","File Not found!");
       }
+      console.log(file);
 
       //deletion from disk
       if(fs.existsSync(file.filePath)){

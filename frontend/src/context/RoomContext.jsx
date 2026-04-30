@@ -169,8 +169,22 @@ const RoomProvider = ({ children }) => {
     }
 
     const handleDeletedFile = (fileId)=>{
-        socket.emit("get-files",{roomId});
-         if (activeFileId === fileId) {
+        // 1. Remove from root files instantly
+  setFiles((prev) => prev.filter((file) => file._id !== fileId));
+          // remove file from all folderChildren
+  setFolderChildren((prev) => {
+    const updated = {};
+
+    for (const path in prev) {
+      updated[path] = prev[path].filter(
+        (file) => file._id !== fileId
+      );
+    }
+    socket.emit("get-files",{roomId});
+    return updated;
+    });
+
+        if (activeFileId === fileId) {
         setActiveFileId(null);
         setFileContent("");
      }
@@ -201,7 +215,7 @@ const RoomProvider = ({ children }) => {
       socket.off("cursor-update", handleCursorUpdates);
       socket.off("load-folder-files", handleLoadFolderFiles);
       socket.off("load-file",handleLoadFile);
-      socket.off("deleted-file",handleDeletedFile);
+      socket.off("file-deleted",handleDeletedFile);
       socket.off("error", handleError);
     };
 
