@@ -28,6 +28,7 @@ const FileTreeNode = ({
       setSelectedFolder(null);
     }else{
        setSelectedFolder(folder);
+       console.log("selected folder",folder)
     }
    
   };
@@ -60,11 +61,19 @@ const FileTreeNode = ({
   }
 };
 
-    const handleDelete = (fileId)=>{
-      console.log("file deletion called ",fileId);
+    const handleDelete = (file)=>{
+      console.log("file deletion called ",file._id);
+      const fileId = file._id;
       socket.emit("delete-file",{roomId,fileId});
-
+      //const filePath2 = file.filePath.replace(`/${file.fileName}`,"");
+      //console.log("filepath for deleting file",filePath2);
+      //const folder = expandedFolders[filePath2];
+      //console.log("folder fetch inside delete",folder);
+      //setSelectedFolder(folder);
     }
+
+
+
     const handleRename = (fileId)=>{
       
     }
@@ -133,7 +142,7 @@ const FileTreeNode = ({
         <div className={`text-white flex items-center justify-between gap-2 ml-2 p-1 ${item._id===activeFileId && "bg-white/10 rounded-lg"}`} onClick={(e)=>{e.stopPropagation();handleActiveFile(item._id)}}>
           <span className="flex items-center gap-2"> <File size={18} /> {item.fileName}</span>
           <div className={`${activeFileId === item._id ? "flex gap-2 items-center" :"hidden"}`}>
-          <button onClick={()=>handleDelete(item._id)} className="cursor-pointer"><Trash size={15}/></button>
+          <button onClick={()=>handleDelete(item)} className="cursor-pointer"><Trash size={15}/></button>
           <button onClick={()=>handleRename(item._id)} className="cursor-pointer"><FilePen size={15}/></button>
         </div>
         </div>

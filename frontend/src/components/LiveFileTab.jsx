@@ -27,6 +27,7 @@ const LiveFileTab = () => {
     setFileName("");
     setType("file");
     setCreateFileOpen(false);
+    
   }
 
   useEffect(() => {

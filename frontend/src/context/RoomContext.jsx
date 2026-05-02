@@ -16,6 +16,7 @@ const RoomProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const isRemoteChangeRef = useRef(false);
   const [activeFileId, setActiveFileId] = useState(null);
+  const activeFileIdRef = useRef(null)
 
   const [cursors, setCursors] = useState([])
 
@@ -28,6 +29,16 @@ const RoomProvider = ({ children }) => {
    const [expandedFolders, setExpandedFolders] = useState({});
 
   const [fileContent, setFileContent] = useState("");
+  const selectedFolderRef = useRef(null);
+
+useEffect(() => {
+  selectedFolderRef.current = selectedFolder;
+}, [selectedFolder]);
+
+useEffect(() => {
+  activeFileIdRef.current = activeFileId
+}, [activeFileId])
+
 
   useEffect(() => {
 
@@ -119,34 +130,56 @@ const RoomProvider = ({ children }) => {
 
     //file creation
     const handleCreatedFile = (file) => {
-      socket.emit("get-files", {
-      roomId
-      });
+      const currentFolder = selectedFolderRef.current;
 
-      if (selectedFolder) {
-        socket.emit("getting-folder-files", {
-          roomId,
-          folderPath: selectedFolder.filePath
-        });
+       if (currentFolder) {
+    const folderPath = currentFolder.filePath;
+
+    setFolderChildren((prev) => ({
+      ...prev,
+      [folderPath]: [...(prev[folderPath] || []), file],
+    }));
+  } else {
+    setFiles((prev) => [...prev, file]);
+  }
+    
+      if(file.type == 'folder'){
+        setSelectedFolder(file);
+        setActiveFileId(null)
       }
-      
-      setActiveFileId(file._id);
-      setSelectedFolder(null);
-      showInfo("File Created Successfully");    
-    }
+      if(file.type == 'file'){
+        setActiveFileId(file._id);
+        setSelectedFolder(null); 
+      }
 
-    //get all files belongs to that room
-    const handleGetFiles = (files) => {
-      setFiles(files);
-
+      showInfo(`File: ${file.fileName} Created Successfully`);    
     }
+ 
+
+  //get all files belongs to that room
+  //  const handleGetFiles = (filesFromServer) => {
+  //  setFiles((prev) => {
+  //  const existingIds = new Set(prev.map(f => f._id));
+  //  const merged = [...prev];
+  //  for (const file of filesFromServer) {
+  //    if (!existingIds.has(file._id)) {
+  //      merged.push(file);
+  //    }
+  //  }
+  //  return merged;
+  //});
+  //};
+  
+  const handleGetFiles = (files) => {
+    setFiles(files);
+};
 
     //cursor details for all users in particular file
     const handleCursorUpdates = (data) => {
 
       console.log("cursor update received:", data);
       console.log("cursorHandler exists?", !!cursorHandler);
-      //isRemoteChangeRef.current = true
+     
       if (cursorHandler) {
         console.log("cursor handler exists");
         cursorHandler(data);
@@ -162,32 +195,34 @@ const RoomProvider = ({ children }) => {
 
     const handleLoadFile = ({activeFileId,content})=>{
 
-      isRemoteChangeRef.current = true;
-       setFileContent(content || ""); 
-      console.log("file id",activeFileId);
-      console.log("content",content);
+      isRemoteChangeRef.current = true; 
+      setFileContent(content || ""); 
+      console.log("file id",activeFileId); 
+      console.log("content",content); 
     }
 
     const handleDeletedFile = (fileId)=>{
-        // 1. Remove from root files instantly
+    // 1. Remove from root files instantly
   setFiles((prev) => prev.filter((file) => file._id !== fileId));
-          // remove file from all folderChildren
+  // remove file from all folderChildren
+
   setFolderChildren((prev) => {
-    const updated = {};
+  const updated = { ...prev };
 
-    for (const path in prev) {
-      updated[path] = prev[path].filter(
-        (file) => file._id !== fileId
-      );
-    }
-    socket.emit("get-files",{roomId});
-    return updated;
-    });
+  for (const path in updated) {
+    updated[path] = updated[path].filter(
+      (file) => file._id !== fileId
+    );
+  }
 
-        if (activeFileId === fileId) {
+  return updated;
+});
+
+      if(activeFileIdRef.current === fileId) {
         setActiveFileId(null);
         setFileContent("");
      }
+     showInfo(`File deleted Successfully by `);
     }
 
     const handleError = (msg) => {
@@ -204,7 +239,7 @@ const RoomProvider = ({ children }) => {
     socket.on("load-file",handleLoadFile);
     socket.on("file-deleted",handleDeletedFile);
     socket.on("error", handleError);
-  
+    
 
     return () => {
       socket.off("file-init", handleFileInit);
