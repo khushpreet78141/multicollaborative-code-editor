@@ -164,20 +164,21 @@ export default function fileSockets({ io, socket, roomUsers }) {
 
     if (!roomId || !fileId || !name) return;
     if (!socket.rooms.has(roomId)) return;
+       const role = socket.data.roles[roomId]
 
     if (role !== "owner" && role !== "editor") {
       return socket.emit("error", "Permission denied for Rename of File !");
     }
     const file = await File.findByIdAndUpdate(
       fileId,
-      { name },
+      { fileName:name },
       { new: true }
     );
 
     if (!file) return;
 
     io.to(roomId).emit("file-renamed", {
-      fileId,
+      file,
       name
     });
   });
@@ -193,11 +194,11 @@ export default function fileSockets({ io, socket, roomUsers }) {
     }
 
       const file = await File.findByIdAndDelete(fileId);
+      const relativePath = file.filePath.replace(`/${file.fileName}`,"");
       if(!file){
         return socket.emit("error","File Not found!");
       }
       console.log(file);
-
       //deletion from disk
       if(fs.existsSync(file.filePath)){
           if (file.type === "folder") {
@@ -207,11 +208,10 @@ export default function fileSockets({ io, socket, roomUsers }) {
       }
       }
       //remove from memory cache
-
       const redisKey = `file:${fileId}`
       await redisClient.del(redisKey);
 
-    io.to(roomId).emit("file-deleted", { fileId });
+    io.to(roomId).emit("file-deleted", { fileId,relativePath });
   });
 
   //getting files of folder 

@@ -154,22 +154,7 @@ useEffect(() => {
 
       showInfo(`File: ${file.fileName} Created Successfully`);    
     }
- 
 
-  //get all files belongs to that room
-  //  const handleGetFiles = (filesFromServer) => {
-  //  setFiles((prev) => {
-  //  const existingIds = new Set(prev.map(f => f._id));
-  //  const merged = [...prev];
-  //  for (const file of filesFromServer) {
-  //    if (!existingIds.has(file._id)) {
-  //      merged.push(file);
-  //    }
-  //  }
-  //  return merged;
-  //});
-  //};
-  
   const handleGetFiles = (files) => {
     setFiles(files);
 };
@@ -201,29 +186,41 @@ useEffect(() => {
       console.log("content",content); 
     }
 
-    const handleDeletedFile = (fileId)=>{
+  const handleDeletedFile = ({fileId,relativePath})=>{
     // 1. Remove from root files instantly
-  setFiles((prev) => prev.filter((file) => file._id !== fileId));
-  // remove file from all folderChildren
-
+   
+   // ✅ remove from root
+  setFiles((prev) =>
+    prev.filter((file) => file._id !== fileId)
+  );
+  
+   
+  // ✅ remove ONLY from the correct folder
   setFolderChildren((prev) => {
-  const updated = { ...prev };
+    // if folder not loaded → do nothing
+    if (!prev[relativePath]) return prev;
 
-  for (const path in updated) {
-    updated[path] = updated[path].filter(
-      (file) => file._id !== fileId
-    );
+    return {
+      ...prev,
+      [relativePath]: prev[relativePath].filter(
+        (file) => file._id !== fileId
+      ),
+    };
+  });
+
+  // ✅ active file cleanup
+  if (activeFileIdRef.current === fileId) {
+    setActiveFileId(null);
+    setFileContent("");
   }
 
-  return updated;
-});
-
-      if(activeFileIdRef.current === fileId) {
-        setActiveFileId(null);
-        setFileContent("");
-     }
-     showInfo(`File deleted Successfully by `);
+  showInfo("File deleted successfully");
     }
+
+    const handleFileRenamed = ({file,name})=>{
+      showInfo(`${file.fileName} renamed to ${name}`);
+    }
+
 
     const handleError = (msg) => {
       showError(`${msg}`);
@@ -238,6 +235,7 @@ useEffect(() => {
     socket.on("load-folder-files", handleLoadFolderFiles);
     socket.on("load-file",handleLoadFile);
     socket.on("file-deleted",handleDeletedFile);
+    socket.on("file-renamed",handleFileRenamed);
     socket.on("error", handleError);
     
 
