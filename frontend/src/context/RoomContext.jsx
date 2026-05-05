@@ -69,29 +69,29 @@ useEffect(() => {
   });
 
 
-
   //useffect for connection
   useEffect(() => {
     
-
     const handleConnect = () => {
       socket.emit("join-room", {
         roomId,
         fileId: activeFileId,
       });
+
       socket.emit("get-messages", {
         roomId
-      })
+      });
+      
       socket.emit("get-files", {
         roomId
-      })
+      });
+
     };
 
     socket.on("connect", handleConnect);
 
     return () => {
       socket.off("connect", handleConnect);
-      
     };
   }, [roomId]);
 
@@ -215,12 +215,30 @@ useEffect(() => {
   }
 
   showInfo("File deleted successfully");
+}
+
+  const handleFileRenamed = ({file,name})=>{
+  setFiles((prev)=>prev.map((item)=>item._id === file._id ? {...item,fileName:name} :item ) )
+  
+  setFolderChildren((prev) => {
+    const updated = {};
+    for (const path in prev) {
+      updated[path] = prev[path].map((item) =>
+        item._id === file._id
+          ? { ...item, fileName: name }
+          : item
+      );
+    }
+    return updated;
+  });
+  
+    showInfo(`file renamed to ${name}`);
     }
 
-    const handleFileRenamed = ({file,name})=>{
-      showInfo(`${file.fileName} renamed to ${name}`);
+    const handleCodeUpdate = ({fileId,code}) =>{
+      console.log("handling code update");
+      setFileContent(code);
     }
-
 
     const handleError = (msg) => {
       showError(`${msg}`);
@@ -236,10 +254,11 @@ useEffect(() => {
     socket.on("load-file",handleLoadFile);
     socket.on("file-deleted",handleDeletedFile);
     socket.on("file-renamed",handleFileRenamed);
+    socket.on("code-update",handleCodeUpdate);
     socket.on("error", handleError);
     
-
     return () => {
+
       socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
@@ -249,7 +268,10 @@ useEffect(() => {
       socket.off("load-folder-files", handleLoadFolderFiles);
       socket.off("load-file",handleLoadFile);
       socket.off("file-deleted",handleDeletedFile);
+      socket.off("file-renamed",handleFileRenamed);
+      socket.off("code-update",handleCodeUpdate);
       socket.off("error", handleError);
+
     };
 
   }, []);

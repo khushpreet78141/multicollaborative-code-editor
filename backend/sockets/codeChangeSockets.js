@@ -6,8 +6,6 @@ import File from "../source/models/fileSchema.js";
 export default function registerCodeChangeEvents({socket,io,roomUsers}){
     socket.on("code-change",async({roomId,fileId,code})=>{
         if(!roomId || !fileId || typeof code !== 'string') return;
-
-      
         // Ensure socket actually belongs to file room
         
         if (!socket.rooms.has(roomId)) return;

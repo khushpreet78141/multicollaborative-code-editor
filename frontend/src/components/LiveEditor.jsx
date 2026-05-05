@@ -16,9 +16,8 @@ const LiveEditor = () => {
   const socketRef = useRef(null);
   const monacoRef = useRef(null);
   const pendingCursorEvents = useRef([]);
-
   const currentFileRef = useRef(activeFileId);
-
+  
   useEffect(() => {
     currentFileRef.current = activeFileId;
   }, [activeFileId]);
@@ -32,16 +31,13 @@ const LiveEditor = () => {
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    pendingCursorEvents.current.forEach(processCursor);
+  pendingCursorEvents.current.forEach(processCursor);
   pendingCursorEvents.current = [];
     editor.onDidChangeCursorPosition((e) => {
       console.log("cursor moved:", e.position);
-      //if (!socketRef.current?.connected) return;
       emitCursorRef.current?.(e.position);
     });
   };
-
-
 
   useEffect(() => {
     setCursorHandler(handleCursorUpdate);
@@ -52,7 +48,6 @@ const LiveEditor = () => {
 
   useEffect(() => {
     if (!socket) return;
-
     emitCursorRef.current = throttle((position) => {
 
       if (!socketRef.current) return;
@@ -117,16 +112,12 @@ const LiveEditor = () => {
 
   const processCursor = (data) => {
     const editor = editorRef.current;
-
     if (!editor) {
       return;
     }
     if (!data) return; // guard
-
     const { userId, position, fileId, userName } = data;
-
-    if (fileId !== activeFileId) {
-     
+    if (fileId !== activeFileId) {  
       return;
     }
     if (
@@ -136,7 +127,6 @@ const LiveEditor = () => {
       typeof position.lineNumber !== "number" ||
       typeof position.column !== "number"
     ) return;
-
 
     if (!document.getElementById(`cursor-style-${userId}`)) {
       const color = getUserColor(userId);
@@ -168,7 +158,6 @@ const LiveEditor = () => {
 
       document.head.appendChild(style);
     }
-
 
     const decoration = [
       {
@@ -205,8 +194,6 @@ const LiveEditor = () => {
   processCursor(data); 
 },[activeFileId]);
 
-
-
   useEffect(() => {
    if (!socket || !roomId) return;
   if (!currentFileRef.current) return;
@@ -216,7 +203,7 @@ const LiveEditor = () => {
   }
 
   const timer = setTimeout(() => {
-    socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent || ""});
+    socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent.trim() || ""});
   }, 2000);
 
   return () => {

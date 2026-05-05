@@ -174,10 +174,10 @@ export default function fileSockets({ io, socket, roomUsers }) {
       { fileName:name },
       { new: true }
     );
-
+  
     if (!file) return;
-
-    io.to(roomId).emit("file-renamed", {
+    
+    io.to(roomId).emit("file-renamed",{
       file,
       name
     });
