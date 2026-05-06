@@ -18,21 +18,21 @@ const JoinRoom = () => {
   //inviteCode.trim() ||
   //(inviteLink.trim() ? extractCodeFromLink(inviteLink) : "");
   
-  const joinRoom = async (codeFromButton,roomId) => {
+  const joinRoom = async (codeFromButton) => {
 
-   
       let code = codeFromButton;
 
   if (!code) {
-    const extracted = inviteCode.trim() || 
-      (inviteLink.trim() ? extractCodeFromLink() : "");
-
+    const extracted =  
+      inviteLink.trim() ? extractCodeFromLink() : "";
+      console.log("extractedLink frp",extracted)
     if (!extracted) {
       showError("Enter invite code or valid link");
       return;
     }
 
-      code = extracted;
+      code = extracted.trim();
+      console.log("final Code",code);
 
     }
 

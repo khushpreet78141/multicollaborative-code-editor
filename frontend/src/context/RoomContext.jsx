@@ -163,8 +163,7 @@ useEffect(() => {
 
     const handleCursorUpdates = (data) => {
 
-      console.log("cursor update received:", data);
-      console.log("cursorHandler exists?",cursorHandlerRef.current.handleCursor);
+     
      
   if (cursorHandlerRef.current.handleCursor) {
     cursorHandlerRef.current.handleCursor(data);
@@ -182,8 +181,7 @@ useEffect(() => {
 
       isRemoteChangeRef.current = true; 
       setFileContent(content || ""); 
-      console.log("file id",activeFileId); 
-      console.log("content",content); 
+     
     }
 
   const handleDeletedFile = ({fileId,relativePath})=>{
@@ -216,32 +214,34 @@ useEffect(() => {
   showInfo("File deleted successfully");
 }
 
-  const handleFileRenamed = ({file,name})=>{
-  setFiles((prev)=>prev.map((item)=>item._id === file._id ? {...item,fileName:name} :item ) )
+  const handleFileRenamed = ({file,newName,oldName})=>{
+    console.log(`now before rename file is ${oldName}`);
+    console.log(`file after renamed ${newName}`);
+  setFiles((prev)=>prev.map((item)=>item._id === file._id ? {...item,fileName:newName} :item ));
   
   setFolderChildren((prev) => {
     const updated = {};
     for (const path in prev) {
       updated[path] = prev[path].map((item) =>
         item._id === file._id
-          ? { ...item, fileName: name }
+          ? { ...item, fileName: newName }
           : item
       );
     }
     return updated;
   });
   
-    showInfo(`file renamed to ${name}`);
+    showInfo(`${oldName} file renamed to ${newName}`);
     }
 
     const handleCodeUpdate = ({fileId,code}) =>{
       if(fileId !== activeFileIdRef.current) return;
       isRemoteChangeRef.current = true;
       setFileContent((prev) => {
-    if (prev === code) return prev; // ✅ prevent useless re-render
+    if (prev === code) return prev; 
     return code;
   });
-   // 🔥 force re-sync cursor
+   //  force re-sync cursor
   setTimeout(() => {
     if (cursorHandlerRef.current?.getCursorPosition) {
   const pos = cursorHandlerRef.current.getCursorPosition();
@@ -252,9 +252,11 @@ useEffect(() => {
     position: pos
   });
 }
-  }, 0);
-;
-      
+  }, 0)    
+    }
+    const handleUserTyping = ({socketId,userName})=>{
+      console.log("handleUserTyping is called ?");
+      showInfo(`${userName} is typing......`);
     }
 
     const handleError = (msg) => {
@@ -272,6 +274,7 @@ useEffect(() => {
     socket.on("file-deleted",handleDeletedFile);
     socket.on("file-renamed",handleFileRenamed);
     socket.on("code-update",handleCodeUpdate);
+    socket.on("user-typing",handleUserTyping);
     socket.on("error", handleError);
     
     return () => {
@@ -287,6 +290,7 @@ useEffect(() => {
       socket.off("file-deleted",handleDeletedFile);
       socket.off("file-renamed",handleFileRenamed);
       socket.off("code-update",handleCodeUpdate);
+      socket.off("user-typing",handleUserTyping);
       socket.off("error", handleError);
 
     };

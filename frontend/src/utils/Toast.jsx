@@ -3,7 +3,7 @@ import CustomToast from "../components/CustomToast";
 
 const baseConfig = {
   position: "top-right",
-  autoClose: 1500,
+  autoClose: 2000,
   hideProgressBar: true,
   closeButton: false,
   className: "!bg-transparent !shadow-none !p-0",

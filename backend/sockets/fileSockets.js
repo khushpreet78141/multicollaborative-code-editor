@@ -169,17 +169,22 @@ export default function fileSockets({ io, socket, roomUsers }) {
     if (role !== "owner" && role !== "editor") {
       return socket.emit("error", "Permission denied for Rename of File !");
     }
+
+    const oldFileName = await File.findOne({_id:fileId,roomId});
+
+    console.log("oldFileName",oldFileName.fileName)
     const file = await File.findByIdAndUpdate(
-      fileId,
-      { fileName:name },
-      { new: true }
-    );
+      fileId, 
+      { fileName:name }, 
+      { new: true } 
+    ); 
   
     if (!file) return;
     
     io.to(roomId).emit("file-renamed",{
       file,
-      name
+      newName:name,
+      oldName:oldFileName.fileName
     });
   });
 

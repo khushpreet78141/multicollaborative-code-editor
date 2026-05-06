@@ -37,7 +37,7 @@ const LiveEditor = () => {
 
   editor.onDidChangeCursorPosition((e) => {
 
-      console.log("cursor moved:", e.position);
+     
       emitCursorRef.current?.(e.position);
     });
 
@@ -194,14 +194,13 @@ const LiveEditor = () => {
       }
     ];
 
-    console.log("decorations", decoration)
+   
     decorationsRef.current[userId] =
       editor.deltaDecorations(
         decorationsRef.current[userId] || [],
         decoration
       );
 
-    console.log("decoration currentId ", decorationsRef.current);
   }
   const handleCursorUpdate = useCallback((data) => {
   const editor = editorRef.current;
@@ -224,15 +223,13 @@ const LiveEditor = () => {
 
   const timer = setTimeout(() => {
     socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent || ""});
-    //socket.emit("cur")
+    socket.emit("typing",{roomId})
   }, 2000);
 
   return () => {
    clearTimeout(timer);
  }
-  
   }, [fileContent]);
-  
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>

@@ -51,6 +51,7 @@ const RoomTopBar = () => {
     socket.off("cursor-update");
     socket.off("code-change");
     console.log("emit leave user event");
+
     navigate('/dasboard');
 
   }
@@ -75,6 +76,7 @@ const RoomTopBar = () => {
   </div>
 
   {/* CENTER */}
+  <div className='flex items-center gap-30'>
   <div className="flex items-center gap-3 bg-[#1e293b] px-4 py-2 rounded-xl border border-white/10">
     <span className="text-sm text-gray-400">Invite Code</span>
     
@@ -92,17 +94,16 @@ const RoomTopBar = () => {
         <Copy size={16} />
       )}
     </button>
-  </div>
 
-  {/* RIGHT */}
-  <div className="flex items-center gap-3">
-    
-    {/*Leave Button*/}
-    <button
+   
+     
+  </div>
+   <button
       onClick={handleLeave}
       disabled={leaving}
       className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-1.5 rounded-lg text-sm transition"
     >
+     
       {leaving ? <lord-icon
     src="https://cdn.lordicon.com/euaablbm.json"
     trigger="loop"
@@ -112,6 +113,13 @@ const RoomTopBar = () => {
     style="width:250px;height:250px">
 </lord-icon> : "Leave"}
     </button>
+  </div>
+      
+  {/* RIGHT */}
+  <div className="flex items-center gap-3">
+
+    {/*Leave Button*/}
+   
 
   </div>
 </nav>
