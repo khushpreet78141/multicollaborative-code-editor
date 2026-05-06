@@ -16,13 +16,13 @@ const RoomProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const isRemoteChangeRef = useRef(false);
   const [activeFileId, setActiveFileId] = useState(null);
-  const activeFileIdRef = useRef(null)
+  const activeFileIdRef = useRef(null);
 
-  const [cursors, setCursors] = useState([])
+  const [cursors, setCursors] = useState([]);
 
-  const [currentUserId, setcurrentUserId] = useState(null)
+  const [currentUserId, setcurrentUserId] = useState(null);
 
-  const [cursorHandler, setCursorHandler] = useState(null);
+  const cursorHandlerRef = useRef(null);
 
   const [folderChildren, setFolderChildren] = useState({});
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -145,7 +145,7 @@ useEffect(() => {
     
       if(file.type == 'folder'){
         setSelectedFolder(file);
-        setActiveFileId(null)
+        setActiveFileId(null);
       }
       if(file.type == 'file'){
         setActiveFileId(file._id);
@@ -160,17 +160,17 @@ useEffect(() => {
 };
 
     //cursor details for all users in particular file
+
     const handleCursorUpdates = (data) => {
 
       console.log("cursor update received:", data);
-      console.log("cursorHandler exists?", !!cursorHandler);
+      console.log("cursorHandler exists?",cursorHandlerRef.current.handleCursor);
      
-      if (cursorHandler) {
-        console.log("cursor handler exists");
-        cursorHandler(data);
-      }else {
-        console.log("cursor handler missing");
-      }
+  if (cursorHandlerRef.current.handleCursor) {
+    cursorHandlerRef.current.handleCursor(data);
+  } else {
+    console.log("cursor handler missing");
+  }
     }
 
     const handleLoadFolderFiles = ({ folderPath, files }) => {
@@ -194,7 +194,6 @@ useEffect(() => {
     prev.filter((file) => file._id !== fileId)
   );
   
-   
   // ✅ remove ONLY from the correct folder
   setFolderChildren((prev) => {
     // if folder not loaded → do nothing
@@ -236,8 +235,26 @@ useEffect(() => {
     }
 
     const handleCodeUpdate = ({fileId,code}) =>{
-      console.log("handling code update");
-      setFileContent(code);
+      if(fileId !== activeFileIdRef.current) return;
+      isRemoteChangeRef.current = true;
+      setFileContent((prev) => {
+    if (prev === code) return prev; // ✅ prevent useless re-render
+    return code;
+  });
+   // 🔥 force re-sync cursor
+  setTimeout(() => {
+    if (cursorHandlerRef.current?.getCursorPosition) {
+  const pos = cursorHandlerRef.current.getCursorPosition();
+
+  socket.emit("cursor-move", {
+    roomId,
+    fileId,
+    position: pos
+  });
+}
+  }, 0);
+;
+      
     }
 
     const handleError = (msg) => {
@@ -301,7 +318,7 @@ useEffect(() => {
         cursors,
         currentUserId,
         roomId,
-        setCursorHandler,
+        cursorHandlerRef,
         socket,
         folderChildren,
         setFolderChildren,
@@ -309,7 +326,8 @@ useEffect(() => {
         setSelectedFolder,
         expandedFolders,
         setExpandedFolders,
-        isRemoteChangeRef
+        isRemoteChangeRef,
+        activeFileIdRef
       }}
     >
       {children}

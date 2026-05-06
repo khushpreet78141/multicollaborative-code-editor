@@ -10,7 +10,7 @@ const LiveEditor = () => {
   // Default to php as in your previous code
   const [language, setLanguage] = useState('php');
   
-  const { activeFileId, fileContent, setFileContent, roomId, socket, setCursorHandler ,setActiveFileId,isRemoteChangeRef} = useRoom()
+  const { activeFileId, fileContent, setFileContent, roomId, socket, cursorHandlerRef ,setActiveFileId,isRemoteChangeRef,activeFileIdRef} = useRoom()
   const decorationsRef = useRef({});
   const emitCursorRef = useRef(null);
   const socketRef = useRef(null);
@@ -21,6 +21,7 @@ const LiveEditor = () => {
   useEffect(() => {
     currentFileRef.current = activeFileId;
   }, [activeFileId]);
+
 
   useEffect(() => {
     socketRef.current = socket;
@@ -33,18 +34,34 @@ const LiveEditor = () => {
 
   pendingCursorEvents.current.forEach(processCursor);
   pendingCursorEvents.current = [];
-    editor.onDidChangeCursorPosition((e) => {
+
+  editor.onDidChangeCursorPosition((e) => {
+
       console.log("cursor moved:", e.position);
       emitCursorRef.current?.(e.position);
     });
+
+  editor.onDidChangeModelContent(() => {
+  const pos = editor.getPosition();
+  emitCursorRef.current?.(pos);
+});
+
   };
 
+
   useEffect(() => {
-    setCursorHandler(handleCursorUpdate);
+    //setCursorHandler(handleCursorUpdate);
+   cursorHandlerRef.current = {
+    handleCursor: handleCursorUpdate,
 
-    return () => setCursorHandler(null); // cleanup
-  }, [activeFileId]);
-
+    getCursorPosition: () => {
+      const editor = editorRef.current;
+      if (!editor) return null;
+      return editor.getPosition();
+    }
+  };
+    return () => {cursorHandlerRef.current = null}; // cleanup
+  }, [activeFileIdRef.current]);
 
   useEffect(() => {
     if (!socket) return;
@@ -54,14 +71,14 @@ const LiveEditor = () => {
       socketRef.current.emit("cursor-move", {
         roomId,
         position,
-        fileId: activeFileId
+        fileId: activeFileIdRef.current
       })
     }, 120);
 
     return () => {
       emitCursorRef.current?.cancel();
     }
-  }, [socket, roomId, activeFileId,]);
+  }, [socket, roomId, activeFileIdRef.current]);
 
   useEffect(() => {
   if (!socket) return;
@@ -87,6 +104,7 @@ const LiveEditor = () => {
   };
 
   const cursorColors = [
+
     "#FF6B6B", // red
     "#4ECDC4", // teal
     "#FFD93D", // yellow
@@ -97,6 +115,7 @@ const LiveEditor = () => {
     "#A29BFE", // light purple
     "#FD79A8", // pink
     "#55EFC4"  // mint
+
   ];
 
   const getUserColor = (userId) => {
@@ -136,24 +155,25 @@ const LiveEditor = () => {
 
       style.innerHTML = `
       .remote-cursor-${userId} {
-        border-left: 2px solid ${color};
-        height: 1.2em;
-        margin-left: -1px;
-        position: relative;
-      }
+      border-left: 3px solid ${color};
+      margin-left: -1px;
+      height: 100%;
+      position: relative;
+      z-index: 10;
+    }
 
-      .remote-label-${userId}::after {
-        content: "${userName}";
-        position: absolute;
-        top: -18px;
-        left: 0;
-        background: ${color};
-        color: white;
-        font-size: 11px;
-        padding: 2px 5px;
-        border-radius: 4px;
-        white-space: nowrap;
-      }
+.remote-cursor-${userId}::after {
+  content: "${userName}";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  background: ${color};
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
     `;
 
       document.head.appendChild(style);
@@ -165,11 +185,11 @@ const LiveEditor = () => {
           position.lineNumber,
           position.column,
           position.lineNumber,
-          position.column + 1
+          position.column 
         ),
         options: {
-          className: `remote-cursor-${userId}`,
-          //afterContentClassName: `remote-label-${userId}`
+          //className: `remote-cursor-${userId}`,
+          afterContentClassName: `remote-cursor-${userId}`
         }
       }
     ];
@@ -192,7 +212,7 @@ const LiveEditor = () => {
   }
 
   processCursor(data); 
-},[activeFileId]);
+},[activeFileIdRef.current]);
 
   useEffect(() => {
    if (!socket || !roomId) return;
@@ -203,7 +223,8 @@ const LiveEditor = () => {
   }
 
   const timer = setTimeout(() => {
-    socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent.trim() || ""});
+    socket.emit("code-change",{roomId,fileId: currentFileRef.current,code: fileContent || ""});
+    //socket.emit("cur")
   }, 2000);
 
   return () => {
