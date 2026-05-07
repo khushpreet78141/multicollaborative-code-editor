@@ -44,6 +44,7 @@ const LiveEditor = () => {
   editor.onDidChangeModelContent(() => {
   const pos = editor.getPosition();
   emitCursorRef.current?.(pos);
+  
 });
 
   };
@@ -139,9 +140,10 @@ const LiveEditor = () => {
     if (fileId !== activeFileId) {  
       return;
     }
+
     if (
        !monacoRef.current ||
-  !monacoRef.current.Range ||
+      !monacoRef.current.Range ||
       !position ||
       typeof position.lineNumber !== "number" ||
       typeof position.column !== "number"
@@ -263,6 +265,5 @@ const LiveEditor = () => {
     </div>
   );
 }
-
 
 export default LiveEditor;

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import socket from "../utils/socket";
 import { useParams } from "react-router-dom";
-import { showError, showInfo } from "../utils/Toast";
+import { showError, showInfo, showSuccess } from "../utils/Toast";
 import { useEffect,useRef } from "react";
 
 import useRoomSocket from '../hooks/useRoomSocket.js'
@@ -110,11 +110,11 @@ useEffect(() => {
   //For listening events
 
   useEffect(() => {
-    //file initializing
-    const handleFileInit = ({ fileId, code }) => {
-      setActiveFileId(fileId);
-      setFileContent(code)
-    };
+    ////file initializing
+    //const handleFileInit = ({ fileId, code }) => {
+    //  setActiveFileId(fileId);
+    //  setFileContent(code)
+    //};
 
     const handleMessage = (message) => {
       
@@ -184,9 +184,9 @@ useEffect(() => {
      
     }
 
-  const handleDeletedFile = ({fileId,relativePath})=>{
-    // 1. Remove from root files instantly
-   
+  const handleDeletedFile = ({fileId,relativePath,oldName})=>{
+  
+  
    // ✅ remove from root
   setFiles((prev) =>
     prev.filter((file) => file._id !== fileId)
@@ -210,8 +210,9 @@ useEffect(() => {
     setActiveFileId(null);
     setFileContent("");
   }
+  
+  showSuccess(`File: ${oldName} deleted successfully`);
 
-  showInfo("File deleted successfully");
 }
 
   const handleFileRenamed = ({file,newName,oldName})=>{
@@ -263,7 +264,7 @@ useEffect(() => {
       showError(`${msg}`);
     }
 
-    socket.on("file-init", handleFileInit);
+    //socket.on("file-init", handleFileInit);
     socket.on("receive-message", handleMessage);
     socket.on("receive-all-messages", handleGetMessage);
     socket.on("file-created", handleCreatedFile);
@@ -279,7 +280,7 @@ useEffect(() => {
     
     return () => {
 
-      socket.off("file-init", handleFileInit);
+      //socket.off("file-init", handleFileInit);
       socket.off("receive-message", handleMessage);
       socket.off("receive-all-messages", handleGetMessage);
       socket.off("file-created", handleCreatedFile);

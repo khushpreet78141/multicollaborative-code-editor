@@ -99,9 +99,22 @@ const AllJoinedRooms = () => {
       showError(`${err.message}`)
     }
   }
-
   //filtering members
-  let FilterMembers = members.filter(member=>member.role!=="owner")
+   let FilterMembers = members.filter(member=>member.role!=="owner");
+
+
+  //removing room
+  const handleRemoveRoom = async(roomId)=>{
+    console.log("room id",roomId);
+    const confirmed = window.confirm("are you sure to remove this room permanently!");
+    if(!confirmed)return;
+
+    await axiosClient.delete(`room/deleteRoom/${roomId}`);
+    showSuccess("room deleted ✅successfully.");
+    joinedRooms = joinedRooms.filter((item)=>item.roomId!==roomId);
+  }
+
+  
   
   return (
     <>
@@ -183,9 +196,9 @@ const AllJoinedRooms = () => {
                        hover:shadow-xl hover:scale-[1.02] 
                        transition duration-300 border border-gray-800"
           >
-
+           
             {/* Title */}
-            <h3 className="text-xl font-bold mb-2">{m.title}</h3>
+            <h3 className="text-xl font-bold mb-2 flex items-center-safe  justify-between"><span>{m.title}</span> <button className='  bg-red-500/20 text-red-400 hover:bg-red-500/30 px-1 py-1.5 rounded-lg text-[12px] transition ' onClick={()=>handleRemoveRoom(m.roomId)}>Remove</button></h3>
 
             {/* Visibility */}
             <p className="text-sm text-gray-400 mb-3">

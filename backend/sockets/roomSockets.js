@@ -50,11 +50,12 @@ export default function registerRoomEvents(io,socket,roomUsers){
         socket.data.joinedRooms.add(roomId);
 
 
-        //const rediskey = `file:${fileId}`;
-        socket.emit("file-init",{
-            fileId,
-            code:  ""
-        })
+        ////const rediskey = `file:${fileId}`;
+        //socket.emit("file-init",{
+        //    fileId,
+        //    code:  ""
+        //})
+
         //send updated users list to everyone in room
 
         io.to(roomId).emit("room-users",room.users);
@@ -102,13 +103,15 @@ export default function registerRoomEvents(io,socket,roomUsers){
             socket.to(roomId).emit("user-left",{
                 socketId:socket.id,
                 username:socket.user?.name
-            }) 
+            });
+
             //update room users list
-            io.to(roomId).emit("room-users",room.users)
+            io.to(roomId).emit("room-users",room.users);
+
             //cleanup : remove empty room
-        if(room.users.length===0){
-            roomUsers.delete(roomId);
-        } ;
+            if(room.users.length===0){
+                roomUsers.delete(roomId);
+        };
         }
         
     })

@@ -15,6 +15,16 @@ const LiveChat = () => {
   }
 }, [messages]);
 
+  const handleKeyDown = (e)=>{
+    
+    if(e.key === "Enter" && message.trim()){
+      e.preventDefault();
+       sendMessage(message);
+       setMessage("");
+    }
+     
+  }
+
   return (
     <div className="relative bg-[#0f172a] border border-white/10 w-full h-[600px] min-h-0 flex top-20 flex-col p-4 rounded-2xl shadow-lg ">
 
@@ -82,8 +92,8 @@ const LiveChat = () => {
               < div className = "flex flex-col gap-3" >
 
                 <div className="absolute bottom-1 w-[90%] flex justify-around">
-                  <textarea value={message} onChange={(e) => setMessage(e.target.value)} type="text" placeholder="Type a message..." className="w-[70%] p-2 rounded-xl bg-white/5 border border-white/10 text-white" />
-                  <button
+                  <textarea value={message} onKeyDown={(e)=>handleKeyDown(e)} onChange={(e) => setMessage(e.target.value)} type="text" placeholder="Type a message..." className="w-[70%] p-2 rounded-xl bg-white/5 border border-white/10 text-white" />
+                  <button  
                     onClick={() => {
                       sendMessage(message);
                       setMessage('');

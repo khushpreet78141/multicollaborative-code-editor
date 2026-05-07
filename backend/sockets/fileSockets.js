@@ -30,7 +30,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
         if (!fs.existsSync(defaultFilePath)) {
             fs.writeFileSync(
                 defaultFilePath,
-                "// start coding..."
+                ""
             );
         }
         const defaultFile = await File.create({
@@ -197,9 +197,9 @@ export default function fileSockets({ io, socket, roomUsers }) {
     if (role !== "owner" && role !== "editor") {
       return socket.emit("error", "Permission denied for Deletion of File !");
     }
-
+      const oldFileName = await File.findById(fileId);
       const file = await File.findByIdAndDelete(fileId);
-      const relativePath = file.filePath.replace(`/${file.fileName}`,"");
+      const relativePath = file?.filePath.replace(`/${file.fileName}`,"");
       if(!file){
         return socket.emit("error","File Not found!");
       }
@@ -216,7 +216,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
       const redisKey = `file:${fileId}`
       await redisClient.del(redisKey);
 
-    io.to(roomId).emit("file-deleted", { fileId,relativePath });
+    io.to(roomId).emit("file-deleted", { fileId,relativePath,oldName:oldFileName.fileName });
   });
 
   //getting files of folder 
@@ -230,6 +230,7 @@ export default function fileSockets({ io, socket, roomUsers }) {
     const files = await File.find({roomId,filePath:{
       $regex:`^${escapedPath}/[^/]+$`
     }});
+    
     socket.emit("load-folder-files",{folderPath,files});
 })
 

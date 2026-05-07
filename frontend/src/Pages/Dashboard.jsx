@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import CreateRoom from '../components/CreateRoom';
 import JoinRoom from '../components/JoinRoom';
@@ -18,13 +18,25 @@ import {
 const Dashboard = () => {
   const [activeSection, setactiveSection] = useState("createRoom");
   const [showProfile, setShowProfile] = useState(false);
-
+  const navigate = useNavigate();
   const menuItems = [
     { id: "createRoom", label: "Create Room", icon: <PlusCircle size={18} /> },
     { id: "joinRoom", label: "Join Room", icon: <DoorOpen size={18} /> },
     { id: "ownRooms", label: "Your Rooms", icon: <LayoutDashboard size={18} /> },
     { id: "joinedRooms", label: "Joined Rooms", icon: <Users size={18} /> },
   ];
+
+  const handleLogout = ()=>{
+
+      const token = localStorage.getItem("token");
+      if(!token) return;
+      const confirmed = window.confirm("are you sure to log out ?")
+      if(!confirmed) return;
+      localStorage.removeItem("token");
+      navigate("/");
+  
+  }
+
 
   return (
     <>
@@ -81,13 +93,7 @@ const Dashboard = () => {
           {/* Dropdown */}
           {showProfile && (
             <div className="absolute bottom-16 left-0 w-full bg-gray-900 border border-white/10 rounded-xl shadow-xl p-3 flex flex-col gap-2">
-              <button className="flex items-center gap-2 hover:bg-white/10 p-2 rounded-lg">
-                <User size={16} /> Profile
-              </button>
-              <button className="flex items-center gap-2 hover:bg-white/10 p-2 rounded-lg">
-                <Settings size={16} /> Settings
-              </button>
-              <button className="flex items-center gap-2 hover:bg-red-500/20 text-red-400 p-2 rounded-lg">
+              <button onClick={handleLogout} className="flex items-center gap-2 hover:bg-red-500/20 text-red-400 p-2 rounded-lg">
                 <LogOut size={16} /> Logout
               </button>
             </div>

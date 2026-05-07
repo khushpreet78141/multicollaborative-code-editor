@@ -86,7 +86,7 @@ const RoomTopBar = () => {
 
     <button
       onClick={() => handleCopy("code")}
-      className="ml-2 p-1 rounded-md hover:bg-white/10 transition"
+      className="ml-2 p-1 rounded-md hover:bg-white/10 transition cursor-pointer"
     >
       {copied === "code" ? (
         <CheckCheck size={16} className="text-green-400" />
@@ -101,7 +101,7 @@ const RoomTopBar = () => {
    <button
       onClick={handleLeave}
       disabled={leaving}
-      className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-1.5 rounded-lg text-sm transition"
+      className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-1.5 rounded-lg text-sm transition cursor-pointer"
     >
      
       {leaving ? <lord-icon
