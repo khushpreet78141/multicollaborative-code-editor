@@ -87,7 +87,6 @@ const Navbar = () => {
               Get Started
             </button> 
           </div>
-
         </div>
       )}
     </nav>

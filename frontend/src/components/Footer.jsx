@@ -3,6 +3,7 @@ import React from "react";
 import { IoLogoGithub } from "react-icons/io";
 import { FaLinkedin } from "react-icons/fa6";
 import { FaTwitter } from "react-icons/fa";
+import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <footer className="bg-black text-white border-t border-zinc-800 px-6 py-16">
@@ -42,9 +43,9 @@ const Footer = () => {
           <h3 className="text-lg font-semibold mb-4">Connect</h3>
 
           <div className="flex gap-4 mb-4">
-            <IoLogoGithub className="cursor-pointer hover:text-purple-400" />
-            <FaLinkedin  className="cursor-pointer hover:text-purple-400" />
-            <FaTwitter className="cursor-pointer hover:text-purple-400" />
+          <Link to={"https://github.com/khushpreet78141"}>  <IoLogoGithub className="cursor-pointer hover:text-purple-400" /></Link>
+          <Link to={"https://www.linkedin.com/in/khushpreet-kaur-4413b5361/"}>  <FaLinkedin  className="cursor-pointer hover:text-purple-400" /> </Link>
+          <Link to={"https://x.com/khushpreet_2007"}>  <FaTwitter className="cursor-pointer hover:text-purple-400" /> </Link>
           </div>
 
           <p className="text-gray-400 text-sm">

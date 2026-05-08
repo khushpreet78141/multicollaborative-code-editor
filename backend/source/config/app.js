@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import roomRoutes from '../routes/roomRoutes.js';
 import fileRoutes from '../routes/fileRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
+import contactRoutes from '../routes/contactRoutes.js';
 
 
 const app = express();
@@ -19,4 +20,5 @@ app.use(cookieParser());
 app.use("/api/room", roomRoutes);
 app.use("/api/file", fileRoutes);
 app.use("/api/auth", authRoutes);
+app.use('/api/contact',contactRoutes);
 export default app;

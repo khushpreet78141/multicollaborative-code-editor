@@ -8,6 +8,8 @@ import Feature from '../components/Feature'
 import HowItWorks from '../components/HowItWorks'
 import UseCases from '../components/UseCases'
 import Footer from '../components/Footer'
+import Contact from '../components/Contact'
+
 const LandingPage = () => {
   return (
     <div>
@@ -17,6 +19,7 @@ const LandingPage = () => {
       <Feature/>
       <HowItWorks/>
       <UseCases/>
+      <Contact/>
       <Footer/>
     </div>
    
