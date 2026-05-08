@@ -1,10 +1,11 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import CreateRoom from '../components/CreateRoom';
 import JoinRoom from '../components/JoinRoom';
 import OwnRooms from '../components/OwnRooms';
 import AllJoinedRooms from '../components/AllJoinedRooms';
+import { jwtDecode } from 'jwt-decode';
 import {
   User,
   LogOut,
@@ -14,11 +15,14 @@ import {
   Users,
   DoorOpen,
 } from "lucide-react";
+import axiosClient from '../../axiosClient';
+import { showError } from '../utils/Toast';
 
 const Dashboard = () => {
   const [activeSection, setactiveSection] = useState("createRoom");
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
+  const [username, setUsername] = useState("")
   const menuItems = [
     { id: "createRoom", label: "Create Room", icon: <PlusCircle size={18} /> },
     { id: "joinRoom", label: "Join Room", icon: <DoorOpen size={18} /> },
@@ -37,6 +41,22 @@ const Dashboard = () => {
   
   }
 
+  useEffect(() => {
+   const getUserToken = async()=>{
+    try{
+      const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token);
+    const userId = decoded.userId;
+    const res = await axiosClient.get(`/auth/getUserDetails/${userId}`);
+    
+    setUsername(res.data?.data?.username);
+    }catch(err){
+      showError(`Error ${err.response?.message} `);
+    }
+   } 
+  getUserToken();
+  }, []);
+  
 
   return (
     <>
@@ -85,7 +105,7 @@ const Dashboard = () => {
               <User size={18} />
             </div>
             <div>
-              <p className="text-sm font-semibold">Khushpreet</p>
+              <p className="text-sm font-semibold">{username}</p>
               <p className="text-xs text-gray-400">View Profile</p>
             </div>
           </div>
@@ -96,6 +116,7 @@ const Dashboard = () => {
               <button onClick={handleLogout} className="flex items-center gap-2 hover:bg-red-500/20 text-red-400 p-2 rounded-lg">
                 <LogOut size={16} /> Logout
               </button>
+              
             </div>
           )}
         </div>

@@ -1,5 +1,4 @@
 
-import activeFiles from "../source/stores/activeFileStore.js";
 import scheduleSave from "../source/utils/debouncedSave.js";
 import redisClient from "../source/utils/redisClient.js";
 import File from "../source/models/fileSchema.js";

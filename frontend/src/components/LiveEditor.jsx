@@ -44,14 +44,14 @@ const LiveEditor = () => {
   editor.onDidChangeModelContent(() => {
   const pos = editor.getPosition();
   emitCursorRef.current?.(pos);
-  
+
 });
 
   };
 
 
   useEffect(() => {
-    //setCursorHandler(handleCursorUpdate);
+
    cursorHandlerRef.current = {
     handleCursor: handleCursorUpdate,
 
@@ -62,7 +62,7 @@ const LiveEditor = () => {
     }
   };
     return () => {cursorHandlerRef.current = null}; // cleanup
-  }, [activeFileIdRef.current]);
+  }, [activeFileId]);
 
   useEffect(() => {
     if (!socket) return;
@@ -79,7 +79,7 @@ const LiveEditor = () => {
     return () => {
       emitCursorRef.current?.cancel();
     }
-  }, [socket, roomId, activeFileIdRef.current]);
+  }, [socket, roomId, activeFileId]);
 
   useEffect(() => {
   if (!socket) return;
@@ -92,6 +92,30 @@ const LiveEditor = () => {
   });
 
 }, [socket, roomId, activeFileId]);
+
+useEffect(() => {
+  const editor = editorRef.current;
+
+  if (!editor) return;
+
+  const currentValue = editor.getValue();
+
+  if (currentValue === fileContent) return;
+
+  const position = editor.getPosition();
+
+  editor.executeEdits("", [
+    {
+      range: editor.getModel().getFullModelRange(),
+      text: fileContent || ""
+    }
+  ]);
+
+  if (position) {
+    editor.setPosition(position);
+  }
+
+}, [fileContent]);
 
 
   const handleLanguageChange = (e) => {
@@ -137,7 +161,7 @@ const LiveEditor = () => {
     }
     if (!data) return; // guard
     const { userId, position, fileId, userName } = data;
-    if (fileId !== activeFileId) {  
+    if (fileId !== currentFileRef.current) {  
       return;
     }
 
@@ -213,7 +237,7 @@ const LiveEditor = () => {
   }
 
   processCursor(data); 
-},[activeFileIdRef.current]);
+},[activeFileId]);
 
   useEffect(() => {
    if (!socket || !roomId) return;
@@ -257,7 +281,7 @@ const LiveEditor = () => {
         width="100%"
         theme="vs-dark"
         language={language}
-        value={ fileContent || ""}
+        defaultValue={fileContent || ""}
         onChange={handleChange}
         onMount={handleEditorDidMount}
       />

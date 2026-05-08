@@ -256,7 +256,7 @@ useEffect(() => {
   }, 0)    
     }
     const handleUserTyping = ({socketId,userName})=>{
-      console.log("handleUserTyping is called ?");
+      
       showInfo(`${userName} is typing......`);
     }
 

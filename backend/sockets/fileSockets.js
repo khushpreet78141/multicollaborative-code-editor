@@ -1,5 +1,4 @@
-import activeFiles from "../source/stores/activeFileStore.js";
-import FileContent from "../source/models/fileContentSchema.js";
+
 import File from "../source/models/fileSchema.js";
 import RoomMember from '../source/models/roomMemberSchema.js';
 import redisClient from "../source/utils/redisClient.js";

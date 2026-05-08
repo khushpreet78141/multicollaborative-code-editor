@@ -25,7 +25,7 @@ const AllJoinedRooms = () => {
     }
     fetchRooms();
   }, []);
-  const joinedRooms = rooms.filter(room=>room.role === "owner");
+  
 
   const handleGetMembers = async(roomId)=>{
     setShowMembers(true);
@@ -39,6 +39,7 @@ const AllJoinedRooms = () => {
     }
     //navigate(`/memberDetails/${roomId}`);
   }
+  const joinedRooms = rooms.filter(room=>room.role === "owner");
   // 🔄 Loading State
   if (loading) {
     return (
@@ -111,8 +112,10 @@ const AllJoinedRooms = () => {
 
     await axiosClient.delete(`room/deleteRoom/${roomId}`);
     showSuccess("room deleted ✅successfully.");
-    joinedRooms = joinedRooms.filter((item)=>item.roomId!==roomId);
+    //joinedRooms = joinedRooms.filter((item)=>item.roomId!==roomId);
+    setrooms((prev)=>prev.filter((item)=>item.roomId!==roomId))
   }
+  
 
   
   

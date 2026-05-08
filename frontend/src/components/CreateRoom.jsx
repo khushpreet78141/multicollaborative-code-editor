@@ -3,6 +3,7 @@ import { X, Copy, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { showSuccess,showError,showInfo } from "../utils/Toast";
 import axiosClient from "../../axiosClient";
+import CircularProgress from '@mui/material/CircularProgress';
 const CreateRoom = () => {
   
   const [step, setStep] = useState(1);
@@ -11,9 +12,12 @@ const CreateRoom = () => {
   const [copied, setCopied] = useState("");
   const [visibility, setvisibility] = useState("public"); 
   const [roomId, setroomId] = useState("")
+  const [isEntrying, setIsEntrying] = useState(false);
   const navigate = useNavigate();
   const handleCreate = async () => {
-    if (!title) return;
+    if (!title || title.trim().length ===0){
+      return showError("Enter Room Name !")
+    };
     const res = await axiosClient.post("/room",{
       title,visibility
     });
@@ -118,10 +122,10 @@ const CreateRoom = () => {
     </p>
 
     <button
-      onClick={() => navigate(`/room/${roomId}`)}
+      onClick={() => {setIsEntrying(true) ; navigate(`/room/${roomId}`)}} 
       className="w-full py-3 rounded-xl bg-green-500/80 hover:bg-green-500"
     >
-      Enter Room →
+   {isEntrying ? <CircularProgress size="30px" aria-label="Loading…" /> : <span>Enter Room →</span>}   
     </button>
   </>
 )}
@@ -158,10 +162,10 @@ const CreateRoom = () => {
                 </div>
 
                 <button
-                  onClick={() => navigate(`/room/${roomId}`)}
+                  onClick={() => {setIsEntrying(true) ; navigate(`/room/${roomId}`)}}
                   className="w-full py-3 rounded-xl bg-green-500/80 hover:bg-green-500"
                 >
-                  Enter Room →
+                 {isEntrying ? <CircularProgress size="30px" aria-label="Loading…" /> : <span>Enter Room →</span>}
                 </button>
               </>
             )}
