@@ -9,7 +9,7 @@ export default async function codeRunService(language_id,code){
         }
     );
 
-console.log("stringify json:",JSON.stringify(response.data,null,2));
+
     return (
         response.data.stdout ||
         response.data.stderr ||

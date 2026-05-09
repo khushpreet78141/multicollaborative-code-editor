@@ -5,7 +5,7 @@ import throttle from "lodash.throttle";
 
 import { useCallback } from 'react';
 import axiosClient from '../../axiosClient';
-import { showError } from '../utils/Toast';
+
 import { CodeXml } from 'lucide-react';
 
 const LiveEditor = () => {
@@ -299,8 +299,8 @@ useEffect(() => {
           <option value="php">PHP</option>
           <option value="javascript">JavaScript</option>
           <option value="python">Python</option>
-          <option value="html">HTML</option>
-          <option value="css">CSS</option>
+          <option value="cpp">cpp</option>
+          <option value="java">java</option>
         </select>
          <button onClick={runCode} style={{width:'100px', marginLeft:'1100px' ,font:'bold' ,fontSize:'20px' , display:'flex', gap:'7px' ,backgroundColor:'green', justifyContent:'center' ,alignItems:'center', borderRadius:'8px', cursor:'pointer' , marginTop:'-25px'}}><CodeXml /> <span>Run</span></button>
       </div>

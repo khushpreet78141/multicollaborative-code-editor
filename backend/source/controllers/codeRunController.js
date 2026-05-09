@@ -27,16 +27,9 @@ export default async function codeRunController(req,res){
     })
     }catch(err){
 
-   console.log(err.response?.data || err.message);
-   console.log("STATUS:", err.response?.status);
+  
 
-   console.log("DATA:", err.response?.data);
-
-   console.log("MESSAGE:", err.message);
-
-   res.status(500).json({
-      message: "Code execution failed"
-   });
+  
 
    res.status(500).json({
       message: "Code execution failed"

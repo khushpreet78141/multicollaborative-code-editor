@@ -19,7 +19,7 @@ const Contact = () => {
            
 
         }catch(err){
-            showError(err.response?.message); 
+            showError(err.response?.data?.message); 
         }
     }
 

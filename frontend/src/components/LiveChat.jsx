@@ -22,7 +22,6 @@ const LiveChat = () => {
        sendMessage(message);
        setMessage("");
     }
-     
   }
 
   return (

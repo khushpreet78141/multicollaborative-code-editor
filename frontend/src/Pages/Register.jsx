@@ -25,15 +25,15 @@ const Register = () => {
   const registerUser = async (data) => {
     try{
       const res = await axiosClient.post("/auth/register", {
-    username:data.username,
+      username:data.username,
       email: data.email,
       password: data.password
     });
     if(res.data.success){
         showSuccess("Registered successfully !");
     }
+
     localStorage.setItem("token",res.data.token);
-    
     setTimeout(() => {
         navigate("/dasboard");
     }, 50);
@@ -42,9 +42,8 @@ const Register = () => {
         console.log(err.response)
       showError(err.response.data.message || "Something went wrong !")
     }
-    
   }
-
+  
 
   return (
     <>
