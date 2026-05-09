@@ -7,6 +7,7 @@ import { showSuccess, showError } from "../utils/Toast";
 import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 
+import CircularProgress from '@mui/material/CircularProgress';
 const Register = () => {
   const [isShow, setisShow] = useState(false);
   const navigate = useNavigate()
@@ -31,12 +32,12 @@ const Register = () => {
     if(res.data.success){
         showSuccess("Registered successfully !");
     }
-    localStorage.setItem("token",res.data.token)
+    localStorage.setItem("token",res.data.token);
     
     setTimeout(() => {
-        navigate("/dasboard")
-    }, 1000);
-    
+        navigate("/dasboard");
+    }, 50);
+
     }catch(err){
         console.log(err.response)
       showError(err.response.data.message || "Something went wrong !")
@@ -110,8 +111,8 @@ const Register = () => {
         </button>
       </div>{errors.password && <p className='text-red-400 text-sm m-1'>{errors.password.message}</p>}
           </div>
-
-            <input type="submit" className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition text-white font-medium shadow-lg shadow-indigo-500/20" />
+          {isSubmitting ? <p className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition text-white font-medium shadow-lg shadow-indigo-500/20"><CircularProgress size="30px" aria-label="Loading…" /></p>:  <input type="submit" className="w-full py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 transition text-white font-medium shadow-lg shadow-indigo-500/20" /> } 
+          
 
 
     </form>

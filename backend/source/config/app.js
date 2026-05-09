@@ -5,6 +5,7 @@ import roomRoutes from '../routes/roomRoutes.js';
 import fileRoutes from '../routes/fileRoutes.js';
 import authRoutes from '../routes/authRoutes.js';
 import contactRoutes from '../routes/contactRoutes.js';
+import codeRunRoute from '../routes/codeRunRoute.js'
 
 
 const app = express();
@@ -21,4 +22,5 @@ app.use("/api/room", roomRoutes);
 app.use("/api/file", fileRoutes);
 app.use("/api/auth", authRoutes);
 app.use('/api/contact',contactRoutes);
+app.use('/api/code',codeRunRoute)
 export default app;

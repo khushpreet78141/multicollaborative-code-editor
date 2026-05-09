@@ -4,11 +4,16 @@ import { useRoom } from '../context/RoomContext';
 import throttle from "lodash.throttle";
 
 import { useCallback } from 'react';
+import axiosClient from '../../axiosClient';
+import { showError } from '../utils/Toast';
+import { CodeXml } from 'lucide-react';
 
 const LiveEditor = () => {
   const editorRef = useRef(null);
   // Default to php as in your previous code
   const [language, setLanguage] = useState('php');
+  const [output, setOutput] = useState("")
+  const [loading, setLoading] = useState(false);
   
   const { activeFileId, fileContent, setFileContent, roomId, socket, cursorHandlerRef ,setActiveFileId,isRemoteChangeRef,activeFileIdRef} = useRoom()
   const decorationsRef = useRef({});
@@ -81,6 +86,7 @@ const LiveEditor = () => {
     }
   }, [socket, roomId, activeFileId]);
 
+
   useEffect(() => {
   if (!socket) return;
   if (!roomId) return;
@@ -93,15 +99,12 @@ const LiveEditor = () => {
 
 }, [socket, roomId, activeFileId]);
 
+
 useEffect(() => {
   const editor = editorRef.current;
-
   if (!editor) return;
-
   const currentValue = editor.getValue();
-
   if (currentValue === fileContent) return;
-
   const position = editor.getPosition();
 
   editor.executeEdits("", [
@@ -257,9 +260,34 @@ useEffect(() => {
  }
   }, [fileContent]);
 
-  return (
-    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' }}>
+  const runCode = async()=>{
+    try{
+      setLoading(true)
+       const res = await axiosClient.post("/code/run",{language,code:fileContent})
+       console.log(res.data.output)
+      setOutput(res.data?.output)
+    }catch(err){
+       setOutput(
+            err.response?.data?.message ||
+            "Execution failed"
+        );
+      
+    }finally{
+      setLoading(false)
+    }
 
+  }
+
+
+
+
+
+
+
+
+  return (
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' ,backgroundColor:'#1e1e1e' }}>
+     
       <div style={{ padding: '10px', background: '#1e1e1e', color: 'white' }}>
         <label htmlFor="language-select">Select Language: </label>
         <select
@@ -274,6 +302,7 @@ useEffect(() => {
           <option value="html">HTML</option>
           <option value="css">CSS</option>
         </select>
+         <button onClick={runCode} style={{width:'100px', marginLeft:'1100px' ,font:'bold' ,fontSize:'20px' , display:'flex', gap:'7px' ,backgroundColor:'green', justifyContent:'center' ,alignItems:'center', borderRadius:'8px', cursor:'pointer' , marginTop:'-25px'}}><CodeXml /> <span>Run</span></button>
       </div>
 
       <Editor
@@ -285,6 +314,17 @@ useEffect(() => {
         onChange={handleChange}
         onMount={handleEditorDidMount}
       />
+
+
+      <div className="bg-[#0f172a] text-green-400 p-4 h-52 overflow-auto font-mono rounded-lg border border-zinc-700">
+        <h1 className='text-white'>Terminal:</h1>
+   {loading ? (
+      <p>Running...</p>
+   ) : (
+      <pre className='ml-10'>{output}</pre>
+   )}
+
+</div>
 
     </div>
   );

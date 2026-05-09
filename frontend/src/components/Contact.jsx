@@ -55,7 +55,6 @@ const Contact = () => {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-white transition"
         />
-
       </div>
 
       {/* Message */}
@@ -66,12 +65,11 @@ const Contact = () => {
         rows={6}
         className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-3 text-white outline-none focus:border-white transition resize-none"
       />
-
       {/* Button */}
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        className="bg-white text-black font-semibold py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 flex justify-center items-center"
+        className="bg-white text-black cursor-pointer font-semibold py-3 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 flex justify-center items-center"
       >
         {submitting ? (
           <CircularProgress size="24px" aria-label="Loading..." />
@@ -79,11 +77,8 @@ const Contact = () => {
           "Send Message"
         )}
       </button>
-
     </div>
-
   </div>
-
 </div>
   )
 }
