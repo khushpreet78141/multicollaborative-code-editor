@@ -11,15 +11,16 @@ const Contact = () => {
 
     const handleSubmit = async()=>{
         try{
+           setSubmitting(true);
             const res = await axiosClient.post('/contact/contactUs',{name,email,data:message});
-            setSubmitting(true);
             setName("");
             setEmail("");
             setMessage("");
-           
-
+          
         }catch(err){
             showError(err.response?.data?.message); 
+        }finally{
+          setSubmitting(false)
         }
     }
 

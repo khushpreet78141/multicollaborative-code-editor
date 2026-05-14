@@ -2,7 +2,7 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
 
     //cursor indicator
     socket.on("cursor-move",({roomId,position,fileId})=>{
-        console.log("fileId",fileId);
+        
         if(!roomId || !fileId || typeof position.lineNumber !== 'number' || typeof position.column !== 'number') return;
         if(!roomUsers.has(roomId)) return;
         const room = roomUsers.get(roomId);
@@ -14,8 +14,7 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
             fileId,
             userName:socket.user?.name
         });
-        //console.log("socket move",room.cursors);
-        console.log("socket.user:", socket.user);
+        
 
         socket.to(roomId).emit("cursor-update",{
             userId:socket.user?.id,
@@ -23,7 +22,7 @@ export default function generateCursorMoveEvents({io,socket,roomUsers}){
             fileId,
             userName:socket.user?.name
         });
-        console.log("broadcast cursor update!");
+       
     })
             
 

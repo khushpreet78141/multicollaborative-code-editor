@@ -49,15 +49,6 @@ export default function registerRoomEvents(io,socket,roomUsers){
         
         socket.data.joinedRooms.add(roomId);
 
-
-        ////const rediskey = `file:${fileId}`;
-        //socket.emit("file-init",{
-        //    fileId,
-        //    code:  ""
-        //})
-
-        //send updated users list to everyone in room
-
         io.to(roomId).emit("room-users",room.users);
 
         //notify others
@@ -65,7 +56,7 @@ export default function registerRoomEvents(io,socket,roomUsers){
             socketId:socket.id,
             username:socket.user?.name
         });
-        console.log(`${socket.user.name} joined room ${roomId}`);
+       
     })
 
     //leave room
@@ -84,7 +75,7 @@ export default function registerRoomEvents(io,socket,roomUsers){
         socketId:socket.id,
         username:socket.user?.name
   }
-    
+
   );
 });
     //Disconnect

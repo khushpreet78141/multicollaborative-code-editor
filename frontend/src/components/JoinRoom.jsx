@@ -25,14 +25,14 @@ const JoinRoom = () => {
   if (!code) {
     const extracted =  
       inviteLink.trim() ? extractCodeFromLink() : "";
-      console.log("extractedLink frp",extracted)
+      
     if (!extracted) {
       showError("Enter invite code or valid link");
       return;
     }
 
       code = extracted.trim();
-      console.log("final Code",code);
+   
 
     }
 
@@ -116,8 +116,7 @@ const JoinRoom = () => {
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <Users className="w-5 h-5" /> Ongoing Public Rooms
         </h2>
-
-        <div className="grid md:grid-cols-2 gap-4">
+        {publicRooms.length === 0 ? <div className="flex flex-col items-center justify-center mt-20 text-gray-400">No public Rooms Exists yet </div> : <div className="grid md:grid-cols-2 gap-4">
           {publicRooms.map((room, index) => (
             <div
               key={index}
@@ -127,7 +126,6 @@ const JoinRoom = () => {
 
               <p className="text-gray-400 text-sm mt-1">
                 Owner: {room.owner.username}
-                
               </p>
 
               <p className="text-gray-500 text-xs mt-1">
@@ -143,7 +141,7 @@ const JoinRoom = () => {
               
             </div>
           ))}
-        </div>
+        </div>}
       </div>
     </div>
   );

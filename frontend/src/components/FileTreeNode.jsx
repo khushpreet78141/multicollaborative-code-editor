@@ -33,7 +33,7 @@ const FileTreeNode = ({
       setSelectedFolder(null);
     }else{
        setSelectedFolder(folder);
-       console.log("selected folder",folder)
+       
     }
    
   };
@@ -52,7 +52,7 @@ const FileTreeNode = ({
     }
     else{
       setActiveFileId(fileId)
-      //setSelectedFolder(null)
+     
     }
     
   }
@@ -74,7 +74,7 @@ const FileTreeNode = ({
   }
 };
     const handleDelete = (file)=>{
-      console.log("file deletion called ",file._id);
+  
       const fileId = file._id;
       socket.emit("delete-file",{roomId,fileId});
     }

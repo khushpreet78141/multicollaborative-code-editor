@@ -20,7 +20,7 @@ const socketAuth = async (socket, next) => {
             name: user.username,
             email: user.email
         };
-        // console.log("Authenticated user:", socket.user);
+        
 
         next()
 

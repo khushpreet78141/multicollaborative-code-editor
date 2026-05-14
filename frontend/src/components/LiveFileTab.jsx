@@ -21,7 +21,7 @@ const LiveFileTab = () => {
 
 
   const handleCreateFile = () => {
-    console.log("handle file created")
+   
     socket.emit("create-file", { roomId, name: fileName, type, relativePath })
   
     setFileName("");
@@ -32,7 +32,7 @@ const LiveFileTab = () => {
 
   useEffect(() => {
 
-    console.log("activefileId",activeFileId);
+  
     socket.emit("open-file",{roomId,activeFileId});
 
   }, [roomId,activeFileId]);

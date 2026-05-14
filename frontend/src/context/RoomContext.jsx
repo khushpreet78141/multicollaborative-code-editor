@@ -216,8 +216,7 @@ useEffect(() => {
 }
 
   const handleFileRenamed = ({file,newName,oldName})=>{
-    console.log(`now before rename file is ${oldName}`);
-    console.log(`file after renamed ${newName}`);
+    
   setFiles((prev)=>prev.map((item)=>item._id === file._id ? {...item,fileName:newName} :item ));
   
   setFolderChildren((prev) => {
@@ -256,8 +255,11 @@ useEffect(() => {
   }, 0)    
     }
     const handleUserTyping = ({socketId,userName})=>{
-      
       showInfo(`${userName} is typing......`);
+    }
+
+    const handleUserLeft = (userInfo)=>{
+      showInfo(`${userInfo.username} has left the room`);
     }
 
     const handleError = (msg) => {
@@ -277,6 +279,7 @@ useEffect(() => {
     socket.on("code-update",handleCodeUpdate);
     socket.on("user-typing",handleUserTyping);
     socket.on("error", handleError);
+    socket.on("user-left",handleUserLeft);
     
     return () => {
 
@@ -293,7 +296,7 @@ useEffect(() => {
       socket.off("code-update",handleCodeUpdate);
       socket.off("user-typing",handleUserTyping);
       socket.off("error", handleError);
-
+      socket.off("user-left",handleUserLeft);
     };
 
   }, []);

@@ -37,7 +37,7 @@ const AllJoinedRooms = () => {
     }catch(err){
       showError(`Error ${err}`)
     }
-    //navigate(`/memberDetails/${roomId}`);
+   
   }
   const joinedRooms = rooms.filter(room=>room.role === "owner");
   // 🔄 Loading State
@@ -49,15 +49,7 @@ const AllJoinedRooms = () => {
     );
   }
 
- // 📭 Empty State
-  if (joinedRooms.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400">
-        <h2 className="text-xl mb-2">No rooms joined yet</h2>
-        <p className="text-sm">Join a room using an invite code to get started</p>
-      </div>
-    );
-  }
+// 
 
    // 📭 Empty State
   if (joinedRooms.length === 0) {
@@ -91,7 +83,7 @@ const AllJoinedRooms = () => {
   //removing member
   const handleRemoveMember = async(memberId,roomId)=>{
     try{
-      console.log("memberId in frontend",memberId);
+      
       const result = await axiosClient.delete(`/room/removeMember/${roomId}/members/${memberId}`)
       
       showSuccess(`${result.data.message}`)
@@ -106,13 +98,13 @@ const AllJoinedRooms = () => {
 
   //removing room
   const handleRemoveRoom = async(roomId)=>{
-    console.log("room id",roomId);
+    
     const confirmed = window.confirm("are you sure to remove this room permanently!");
     if(!confirmed)return;
 
     await axiosClient.delete(`room/deleteRoom/${roomId}`);
     showSuccess("room deleted ✅successfully.");
-    //joinedRooms = joinedRooms.filter((item)=>item.roomId!==roomId);
+ 
     setrooms((prev)=>prev.filter((item)=>item.roomId!==roomId))
   }
   
@@ -134,6 +126,7 @@ const AllJoinedRooms = () => {
 
         {/* Members List */}
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
+          {FilterMembers.length === 0 && <div className='m-auto text-gray-400 text-center'>No ❌ joined members yet ! share inviteCode to inviteMembers</div>}
           {FilterMembers.map((item, index) => (
             
             <div

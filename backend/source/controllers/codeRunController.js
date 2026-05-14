@@ -2,8 +2,7 @@ import codeRunService from "../services/codeRunService.js"
 
 export default async function codeRunController(req,res){
     const {language,code} = req.body
-    console.log("language",language);
-    console.log("code",code);
+    
 
     if(typeof(code) !== 'string' || code.length === 0){
         return res.status(400).json({

@@ -3,7 +3,7 @@ import { useRoom } from '../context/RoomContext'
 import axiosClient from '../../axiosClient'
 import { useState } from 'react'
 import { CheckCheck,Copy, LeafyGreen } from 'lucide-react'
-import { showSuccess } from '../utils/Toast'
+import { showError, showSuccess } from '../utils/Toast'
 
 import { useNavigate } from 'react-router-dom'
 const RoomTopBar = () => {
@@ -43,16 +43,24 @@ const RoomTopBar = () => {
   }
 
   const handleLeave = ()=> {
-    console.log("leave button");
+    
     const confirmed = window.confirm("are you sure to leave the Room ?")
     if(!confirmed) return;
-    socket.emit("leave-room",{roomId}); 
-    setLeaving(true);
-    socket.off("cursor-update");
-    socket.off("code-change");
-    console.log("emit leave user event");
+    try{
+      setLeaving(true);
+      socket.emit("leave-room",{roomId}); 
+    
 
     navigate('/dasboard');
+    }catch(err){
+      showError('error occur while Leaving')
+    }finally{
+      setLeaving(false);
+    }
+    
+    //socket.off("cursor-update");
+    //socket.off("code-change");
+    
 
   }
    

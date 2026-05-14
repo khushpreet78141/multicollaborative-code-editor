@@ -31,12 +31,11 @@ function App() {
      <Route path='/createRoom' element={<CreateRoom/>}/>
      <Route path='/joinRoom' element={<JoinRoom/>}/>
      <Route path='/dasboard' element={<Dashboard/>}/> 
-      
      <Route path='/room/:roomId'  element={ <RoomProvider><RoomInterface/></RoomProvider>}/> 
 </Routes>
     </BrowserRouter>
     </>
-  )
+  );
 }
 
 export default App

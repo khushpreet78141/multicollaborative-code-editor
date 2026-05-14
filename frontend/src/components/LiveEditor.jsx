@@ -264,26 +264,17 @@ useEffect(() => {
     try{
       setLoading(true)
        const res = await axiosClient.post("/code/run",{language,code:fileContent})
-       console.log(res.data.output)
+       
       setOutput(res.data?.output)
     }catch(err){
        setOutput(
-            err.response?.data?.message ||
+            err.response?.data?.message || 
             "Execution failed"
         );
-      
     }finally{
-      setLoading(false)
+      setLoading(false);
     }
-
   }
-
-
-
-
-
-
-
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', height: '100vh' ,backgroundColor:'#1e1e1e' }}>
